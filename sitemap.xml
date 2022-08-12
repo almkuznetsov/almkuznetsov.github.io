@@ -2,19 +2,19 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://almkuznetsov.github.io/posts/</loc>
-    <lastmod>2019-03-05T00:00:00+00:00</lastmod>
+    <loc>https://almkuznetsov.github.io/post/</loc>
+    <lastmod>2022-07-20T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://almkuznetsov.github.io/posts/test000/</loc>
-    <lastmod>2019-03-05T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://almkuznetsov.github.io/posts/%D1%82%D0%B5%D1%81%D1%82/</loc>
-    <lastmod>2019-03-05T00:00:00+00:00</lastmod>
+    <loc>https://almkuznetsov.github.io/post/%D1%82%D0%B5%D1%81%D1%82/</loc>
+    <lastmod>2022-07-20T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://almkuznetsov.github.io/</loc>
+    <lastmod>2022-07-20T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://almkuznetsov.github.io/post/test000/</loc>
     <lastmod>2019-03-05T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://almkuznetsov.github.io/posts/%D0%BC%D0%BE%D0%B8%CC%86-%D0%BF%D0%B5%D1%80%D0%B2%D1%8B%D0%B8%CC%86-%D0%BF%D0%BE%D1%81%D1%82/</loc>
+    <loc>https://almkuznetsov.github.io/post/%D0%BC%D0%BE%D0%B8%CC%86-%D0%BF%D0%B5%D1%80%D0%B2%D1%8B%D0%B8%CC%86-%D0%BF%D0%BE%D1%81%D1%82/</loc>
     <lastmod>2019-03-05T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://almkuznetsov.github.io/categories/</loc>

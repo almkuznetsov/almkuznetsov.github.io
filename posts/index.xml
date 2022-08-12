@@ -4,13 +4,18 @@
     <title>Posts on Александр Кузнецов</title>
     <link>https://almkuznetsov.github.io/posts/</link>
     <description>Recent content in Posts on Александр Кузнецов</description>
-    <image>
-      <url>https://almkuznetsov.github.io/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</url>
-      <link>https://almkuznetsov.github.io/%3Clink%20or%20path%20of%20image%20for%20opengraph,%20twitter-cards%3E</link>
-    </image>
     <generator>Hugo -- gohugo.io</generator>
     <language>ru</language>
-    <lastBuildDate>Tue, 05 Mar 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://almkuznetsov.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 20 Jul 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://almkuznetsov.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>test333</title>
+      <link>https://almkuznetsov.github.io/posts/%D1%82%D0%B5%D1%81%D1%82/</link>
+      <pubDate>Wed, 20 Jul 2022 00:00:00 +0000</pubDate>
+      
+      <guid>https://almkuznetsov.github.io/posts/%D1%82%D0%B5%D1%81%D1%82/</guid>
+      <description>test444</description>
+    </item>
+    
     <item>
       <title>test111</title>
       <link>https://almkuznetsov.github.io/posts/test000/</link>
@@ -18,15 +23,6 @@
       
       <guid>https://almkuznetsov.github.io/posts/test000/</guid>
       <description>test222</description>
-    </item>
-    
-    <item>
-      <title>test333</title>
-      <link>https://almkuznetsov.github.io/posts/%D1%82%D0%B5%D1%81%D1%82/</link>
-      <pubDate>Tue, 05 Mar 2019 00:00:00 +0000</pubDate>
-      
-      <guid>https://almkuznetsov.github.io/posts/%D1%82%D0%B5%D1%81%D1%82/</guid>
-      <description>test444</description>
     </item>
     
     <item>
