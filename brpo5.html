@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title></title>
+    <link rel="stylesheet" href="dist/reveal.css" />
+    <link rel="stylesheet" href="dist/theme/white.css" id="theme" />
+    <link rel="stylesheet" href="plugin/highlight/zenburn.css" />
+	<link rel="stylesheet" href="css/layout.css" />
+	<link rel="stylesheet" href="plugin/customcontrols/style.css">
+
+
+
+    <script defer src="dist/fontawesome/all.min.js"></script>
+
+	<script type="text/javascript">
+		var forgetPop = true;
+		function onPopState(event) {
+			if(forgetPop){
+				forgetPop = false;
+			} else {
+				parent.postMessage(event.target.location.href, "app://obsidian.md");
+			}
+        }
+		window.onpopstate = onPopState;
+		window.onmessage = event => {
+			if(event.data == "reload"){
+				window.document.location.reload();
+			}
+			forgetPop = true;
+		}
+
+		function fitElements(){
+			const itemsToFit = document.getElementsByClassName('fitText');
+			for (const item in itemsToFit) {
+				if (Object.hasOwnProperty.call(itemsToFit, item)) {
+					var element = itemsToFit[item];
+					fitElement(element,1, 1000);
+					element.classList.remove('fitText');
+				}
+			}
+		}
+
+		function fitElement(element, start, end){
+
+			let size = (end + start) / 2;
+			element.style.fontSize = `${size}px`;
+
+			if(Math.abs(start - end) < 1){
+				while(element.scrollHeight > element.offsetHeight){
+					size--;
+					element.style.fontSize = `${size}px`;
+				}
+				return;
+			}
+
+			if(element.scrollHeight > element.offsetHeight){
+				fitElement(element, start, size);
+			} else {
+				fitElement(element, size, end);
+			}		
+		}
+
+
+		document.onreadystatechange = () => {
+			fitElements();
+			if (document.readyState === 'complete') {
+				if (window.location.href.indexOf("?export") != -1){
+					parent.postMessage(event.target.location.href, "app://obsidian.md");
+				}
+				if (window.location.href.indexOf("print-pdf") != -1){
+					let stateCheck = setInterval(() => {
+						clearInterval(stateCheck);
+						window.print();
+					}, 250);
+				}
+			}
+	};
+
+
+        </script>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides"><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Безопасная разработка программного обеспечения
+Занятие 5. Статический анализ 3. Интеграция в цикл разработки, отдельные детекторы
+
+Основано на Введении в статический анализ Дмитрия Журихина (ИСП РАН)
+
+23.09.2024
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Группы пользователей статического анализатора и их цели
+
+- Специалисты по информационно-технологическому обслуживанию: *как интегрировать анализатор в цикл разработки*?
+- Программисты: *как исправить найденные дефекты*?
+- Специалисты по безопасности: *как оценить и увеличить степень безопасности продукта*?
+</div></script></section><section ><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Задачи статического анализатора
+- **Что анализировать?**
+	- **явное указание целей,**
+	- **автоматическое определение.**
+- Как анализировать?
+	- подход анализа, 
+	- дополнительные данные,
+	- требуемые ресурсы.
+- Как и что показать?
+	- объяснение дефекта,
+	- навигация по коду.
+- Как хранить?
+	- история анализов.
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Цели анализа (1/2)
+- Явное указание целей
+	- Непосредственное перечисление файлов исходного кода или папок с файлами исходного кода,
+	- Создание проекта анализа.
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Цели анализа (2/2)
+- Автоматическое определение целей
+	- Использование файла проекта системы сборки (например .sln),
+	- Плагин IDE, 
+	- Встраивание в систему сборки с помощью плагина,
+	- Использование логов системы сборки, 
+	- Перехват сборки.
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Перехват сборки
+
+Автоматическое определение целей анализа в процессе отслеживания запуска сборки проекта помогает проблему ограниченности информации о параметрах компиляции:
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Автоматическое определение целей анализа:
+- Требует минимального участия человека,
+- Позволяет наиболее точно отследить все детали компиляции:
+	- Конкретные файлы исходного кода, входящие в проект,
+	- Используемые компиляторы,
+	- Опции компиляции, компоновки, и др., 
+	- Детали окружения, влияющие на компиляцию
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Сложности перехвата сборки (1/2)
+- Файлы исходного кода могут генерироваться в процессе сборки (и удаляться перед её завершением); 
+- Одни и те же исходные коды могут компилироваться множество раз в различных конфигурациях;
+- Сложная компоновка с использованием библиотек и архивов;
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Сложности перехвата сборки (2/2)
+- Инкрементальная сборка;
+- Сборка в песочнице;
+- Распределённая сборка;
+- Сборка с помощью программных интерфейсов компиляторов
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Дополнительные возможности перехвата сборки (1/2)
+- Объединение результатов независимых сборок:
+	- При распределённой сборке на разных машинах,
+	- При сборке проекта по частям в разных песочницах,
+	- При раздельной сборке разных конфигураций проекта.
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Дополнительные возможности перехвата сборки (2/2)
+- Фильтрация части компиляций при сборке:
+	- При сборке сторонних зависимостей,
+	- Для выделения определённой конфигурации для анализа.
+</div></script></section></section><section ><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Задачи статического анализатора
+- **Что анализировать?**
+	- **явное указание целей,**
+	- **автоматическое определение.**
+- **Как анализировать?**
+	- **подход анализа,** 
+	- **дополнительные данные,**
+	- **требуемые ресурсы.**
+- Как и что показать?
+	- объяснение дефекта,
+	- навигация по коду.
+- Как хранить?
+	- история анализов.
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Проведение анализа
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Масштабируемость анализа
+
+Чем большим количеством свойств обладает анализ, тем больше данных и более сложным образом он должен обработать.
+
+К основным способам увеличения масштабируемости анализа относят:
+- Параллельный анализ,
+- Переиспользование результатов анализа, в том числе промежуточных,
+- Эффективные стратегии отсечения неперспективных путей.
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Детерминированность анализа
+
+- Анализ одних и тех же исходных кодов в одном и том же окружении должен приводить к тому же набору предупреждений;
+- Анализ схожих исходных кодов в схожих окружениях должен приводить к схожему набору предупреждений;
+- Включение или выключение определённых типов детекторов не должно приводить к изменению результатов
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Построение трассы предупреждения
+
+Даже истинное предупреждение об ошибке будет бесполезным, если анализатору не удастся объяснить пользователю суть конкретного дефекта.
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Проблемы построения трассы (1/3)
+- Переформулирование обоснования найденной ошибки из сущностей анализа в сущности исходного кода:
+	- именование значений программы в терминах имён переменных,
+	- именование ячеек памяти, явно не присутствующих в коде в данной точке,
+	- демонстрация на исходном коде сложных связей и путей (несколько итераций вложенных циклов, сложные межпроцедурные зависимости, код в макросах).
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Проблемы построения трассы (2/3):
+- Компромисс в выборе точек трассы:
+	- слишком лаконичные трассы заставляют пользователя догадываться, как анализатор пришёл к такому выводу (например, какой именно путь от истока до стока он посчитал выполнимым и ошибочным),
+	- слишком подробные, длинные трассы пугают пользователей, они не хотят разбираться и склонны помечать такие срабатывания как ложные.
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Проблемы построения трассы (3/3):
+- Компромисс в выборе точек трассы:
+	- Некоторые типы ошибок сами по себе сложны для понимания и требуют высокой квалификации пользователя для осознания проблемы.
+</div></script></section></section><section ><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Задачи статического анализатора
+- **Что анализировать?**
+	- **явное указание целей,**
+	- **автоматическое определение.**
+- **Как анализировать?**
+	- **подход анализа,** 
+	- **дополнительные данные,**
+	- **требуемые ресурсы.**
+- **Как и что показать?**
+	- **объяснение дефекта,**
+	- **навигация по коду.**
+- Как хранить?
+	- история анализов.
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Объяснение дефекта
+
+- Подробное сообщение,
+- Трасса возникновения или проявления дефекта,
+- Оценка критичности дефекта,
+- Классификация типа дефекта (например, CWE),
+- Примеры подобных дефектов,
+- Предложение исправлений для дефекта
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Формат результатов
+- Читаемый для пользователя:
+	- Текстовый,
+	- Графическое представление.
+- Удобный для использования в скриптах:
+	- XML, 
+	- JSON,
+	- SARIF
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Отчёт о найденных предупреждениях
+
+- Фильтрация по типам, группам, критичности, достоверности предупреждений и др.,
+- Возможность отсева старых предупреждений,
+- Сокрытие размеченных как ложные предупреждений,
+- Представление в наглядном виде статистики о результатах.
+</div></script></section></section><section ><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Задачи статического анализатора
+
+- **Что анализировать?**
+	- **явное указание целей,**
+	- **автоматическое определение.**
+- **Как анализировать?**
+	- **подход анализа,** 
+	- **дополнительные данные,**
+	- **требуемые ресурсы.**
+- **Как и что показать?**
+	- **объяснение дефекта,**
+	- **навигация по коду.**
+- **Как хранить?**
+	- **история анализов.**
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Хранение промежуточных данных (1/2)
+
+Промежуточные данные для статического анализа могут занимать значительный объём:
+- Внутреннее представление для анализа,
+- Метаинформация о зависимостях объектов исходного кода,
+- Хранимые резюме функций для ускорения инкрементального анализа.
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Хранение промежуточных данных (2/2)
+Результаты анализа как правило имеют намного меньший объём, чем промежуточные данные. Однако в отличие от промежуточных данных они хранятся намного дольше и накапливаются со временем.
+</div></script></section></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Разбор нескольких срабатываний Svace:
+Critical:
+- [DEREF_AFTER_NULL.EX](https://svacer.basealt.space/mode/review/project/d5d0c818-5467-44c8-a060-76ef5165d0cf/branch/7add2c3f-e506-4c21-9a9b-7496fe05cdfa/snapshot/ace06890-ef75-40ea-9c41-6700ff0309a1/filter/eyJ3YXJuQ2xhc3MiOlsiREVSRUZfQUZURVJfTlVMTC5FWC9DWFgiXX0=/marker/eyJtYXJrZXJJRCI6ImQwMjY1OTk2LTY1MWYtNDU2Mi1iYmM3LTBkYjdmMjJjNDY2YyIsImZpbGUiOiIvdXNyL3NyYy9SUE0vQlVJTEQvcG9zdGdyZXNxbDE2LTE2LjMvc3JjL2JhY2tlbmQvY29tbWFuZHMvdHJpZ2dlci5jIn0=)
+- [BUFFER_OVERFLOW](https://svacer.basealt.space/mode/review/project/d5d0c818-5467-44c8-a060-76ef5165d0cf/branch/7add2c3f-e506-4c21-9a9b-7496fe05cdfa/snapshot/ace06890-ef75-40ea-9c41-6700ff0309a1/filter/eyJ3YXJuQ2xhc3MiOlsiQlVGRkVSX09WRVJGTE9XL0NYWCJdfQ==/marker/eyJtYXJrZXJJRCI6ImUxOWMwM2QwLWNkNDktNDdiMi05OTUwLWYyODEzNzAwOWFjNiIsImZpbGUiOiIvdXNyL3NyYy9SUE0vQlVJTEQvcG9zdGdyZXNxbDE2LTE2LjMvc3JjL2JhY2tlbmQvc3RhdGlzdGljcy9kZXBlbmRlbmNpZXMuYyJ9)
+
+Major:
+- [TAINTED.INT_OVERFLOW](https://svacer.basealt.space/mode/review/project/d5d0c818-5467-44c8-a060-76ef5165d0cf/branch/7add2c3f-e506-4c21-9a9b-7496fe05cdfa/snapshot/ace06890-ef75-40ea-9c41-6700ff0309a1/filter/eyJ3YXJuQ2xhc3MiOlsiVEFJTlRFRC5JTlRfT1ZFUkZMT1cvQ1hYIl19/marker/eyJtYXJrZXJJRCI6IjFjZWY0ZjYwLTZjYTktNDdkYi1hYzg1LTUyNjAyZjRhNDYwYyIsImZpbGUiOiIvdXNyL3NyYy9SUE0vQlVJTEQvcG9zdGdyZXNxbDE2LTE2LjMvc3JjL2JhY2tlbmQvYWNjZXNzL3RyYW5zYW0vc2xydS5jIn0=)
+- [WRONG_ARGUMENTS_ORDER](https://svacer.basealt.space/mode/review/project/d5d0c818-5467-44c8-a060-76ef5165d0cf/branch/7add2c3f-e506-4c21-9a9b-7496fe05cdfa/snapshot/ace06890-ef75-40ea-9c41-6700ff0309a1/filter/eyJ3YXJuQ2xhc3MiOlsiV1JPTkdfQVJHVU1FTlRTX09SREVSL0NYWCJdfQ<mark>/marker/eyJtYXJrZXJJRCI6Ijk0ZGY3MjRiLTNkZGEtNDM4YS04ZTk3LWQzM2U5Y2NiOTBmZCIsImZpbGUiOiIvdXNyL3NyYy9SUE0vQlVJTEQvcG9zdGdyZXNxbDE2LTE2LjMvc3JjL2JhY2tlbmQvdXRpbHMvYWR0L3NlbGZ1bmNzLmMifQ</mark>)
+- [USER.BAD_PRIVILEGE](https://svacer.basealt.space/mode/review/project/d5d0c818-5467-44c8-a060-76ef5165d0cf/branch/7add2c3f-e506-4c21-9a9b-7496fe05cdfa/snapshot/ace06890-ef75-40ea-9c41-6700ff0309a1/filter/eyJ3YXJuQ2xhc3MiOlsiVVNFUi5CQURfUFJJVklMRUdFL0NYWCJdfQ==/marker/eyJtYXJrZXJJRCI6IjJiZWFjNTNjLTM3ZTEtNGNkYi04OWMyLTc5MWE1MDQ1NDkxZSIsImZpbGUiOiIvdXNyL3NyYy9SUE0vQlVJTEQvcG9zdGdyZXNxbDE2LTE2LjMvc3JjL2JhY2tlbmQvcG9zdG1hc3Rlci9mb3JrX3Byb2Nlc3MuYyJ9)
+- [UNINIT.CTOR.MANY](https://svacer.basealt.space/mode/review/project/d5d0c818-5467-44c8-a060-76ef5165d0cf/branch/7add2c3f-e506-4c21-9a9b-7496fe05cdfa/snapshot/ace06890-ef75-40ea-9c41-6700ff0309a1/filter/eyJ3YXJuQ2xhc3MiOlsiVU5JTklULkNUT1IuTUFOWS9DWFgiXX0=/marker/eyJtYXJrZXJJRCI6IjU3MmJjN2E1LTdiYTctNGJkOC1hYjk2LTI2OWNiZDBjYWJhNiIsImZpbGUiOiIvdXNyL2xpYi9sbHZtLTEzLjAvaW5jbHVkZS9sbHZtL0FEVC9Ud2luZS5oIn0=)
+- [SIMILAR_BRANCHES](https://svacer.basealt.space/mode/review/project/d5d0c818-5467-44c8-a060-76ef5165d0cf/branch/7add2c3f-e506-4c21-9a9b-7496fe05cdfa/snapshot/ace06890-ef75-40ea-9c41-6700ff0309a1/filter/eyJ3YXJuQ2xhc3MiOlsiU0lNSUxBUl9CUkFOQ0hFUy9DWFgiXX0=/marker/eyJtYXJrZXJJRCI6IjM3ZDM5ZThjLWZjNTMtNGM5Ni05M2JiLThjYzYxNTRlOGE5MyIsImZpbGUiOiIvdXNyL3NyYy9SUE0vQlVJTEQvcG9zdGdyZXNxbDE2LTE2LjMvc3JjL2JhY2tlbmQvb3B0aW1pemVyL3BsYW4vcGxhbm5lci5jIn0=)
+</div></script></section></div>
+    </div>
+
+    <script src="dist/reveal.js"></script>
+
+    <script src="plugin/markdown/markdown.js"></script>
+    <script src="plugin/highlight/highlight.js"></script>
+    <script src="plugin/zoom/zoom.js"></script>
+    <script src="plugin/notes/notes.js"></script>
+    <script src="plugin/math/math.js"></script>
+	<script src="plugin/mermaid/mermaid.js"></script>
+	<script src="plugin/chart/chart.min.js"></script>
+	<script src="plugin/chart/plugin.js"></script>
+	<script src="plugin/menu/menu.js"></script>
+	<script src="plugin/customcontrols/plugin.js"></script>
+
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+	  function isLight(color) {
+		let hex = color.replace('#', '');
+
+		// convert #fff => #ffffff
+		if(hex.length == 3){
+			hex = `${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`;
+		}
+
+		const c_r = parseInt(hex.substr(0, 2), 16);
+		const c_g = parseInt(hex.substr(2, 2), 16);
+		const c_b = parseInt(hex.substr(4, 2), 16);
+		const brightness = ((c_r * 299) + (c_g * 587) + (c_b * 114)) / 1000;
+		return brightness > 155;
+	}
+
+	var bgColor = getComputedStyle(document.documentElement).getPropertyValue('--r-background-color').trim();
+	var isLight = isLight(bgColor);
+
+	if(isLight){
+		document.body.classList.add('has-light-background');
+	} else {
+		document.body.classList.add('has-dark-background');
+	}
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath.MathJax3,
+		  RevealMermaid,
+		  RevealChart,
+		  RevealCustomControls,
+		  RevealMenu,
+        ],
+
+
+    	allottedTime: 120 * 1000,
+
+		mathjax3: {
+			mathjax: 'plugin/math/mathjax/tex-mml-chtml.js',
+		},
+		markdown: {
+		  gfm: true,
+		  mangle: true,
+		  pedantic: false,
+		  smartLists: false,
+		  smartypants: false,
+		},
+
+		mermaid: {
+			theme: isLight ? 'default' : 'dark',
+		},
+
+		customcontrols: {
+			controls: [
+			]
+		},
+		menu: {
+			loadIcons: false
+		}
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"width":960,"height":700,"margin":0.04,"controls":true,"progress":true,"slideNumber":true,"transition":"slide","transitionSpeed":"default"}, queryOptions);
+    </script>
+
+    <script>
+      Reveal.initialize(options);
+    </script>
+  </body>
+
+  <!-- created with Advanced Slides -->
+</html>
