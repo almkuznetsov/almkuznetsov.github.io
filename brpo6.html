@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title></title>
+    <link rel="stylesheet" href="dist/reveal.css" />
+    <link rel="stylesheet" href="dist/theme/white.css" id="theme" />
+    <link rel="stylesheet" href="plugin/highlight/zenburn.css" />
+	<link rel="stylesheet" href="css/layout.css" />
+	<link rel="stylesheet" href="plugin/customcontrols/style.css">
+
+
+
+    <script defer src="dist/fontawesome/all.min.js"></script>
+
+	<script type="text/javascript">
+		var forgetPop = true;
+		function onPopState(event) {
+			if(forgetPop){
+				forgetPop = false;
+			} else {
+				parent.postMessage(event.target.location.href, "app://obsidian.md");
+			}
+        }
+		window.onpopstate = onPopState;
+		window.onmessage = event => {
+			if(event.data == "reload"){
+				window.document.location.reload();
+			}
+			forgetPop = true;
+		}
+
+		function fitElements(){
+			const itemsToFit = document.getElementsByClassName('fitText');
+			for (const item in itemsToFit) {
+				if (Object.hasOwnProperty.call(itemsToFit, item)) {
+					var element = itemsToFit[item];
+					fitElement(element,1, 1000);
+					element.classList.remove('fitText');
+				}
+			}
+		}
+
+		function fitElement(element, start, end){
+
+			let size = (end + start) / 2;
+			element.style.fontSize = `${size}px`;
+
+			if(Math.abs(start - end) < 1){
+				while(element.scrollHeight > element.offsetHeight){
+					size--;
+					element.style.fontSize = `${size}px`;
+				}
+				return;
+			}
+
+			if(element.scrollHeight > element.offsetHeight){
+				fitElement(element, start, size);
+			} else {
+				fitElement(element, size, end);
+			}		
+		}
+
+
+		document.onreadystatechange = () => {
+			fitElements();
+			if (document.readyState === 'complete') {
+				if (window.location.href.indexOf("?export") != -1){
+					parent.postMessage(event.target.location.href, "app://obsidian.md");
+				}
+				if (window.location.href.indexOf("print-pdf") != -1){
+					let stateCheck = setInterval(() => {
+						clearInterval(stateCheck);
+						window.print();
+					}, 250);
+				}
+			}
+	};
+
+
+        </script>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides"><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Безопасная разработка программного обеспечения
+Занятие 6. Динамический анализ. Фаззинг 1. 
+
+07.10.2024
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Динамический анализ — это подход к анализу программы, при котором она запускается (в отличие от статического анализа)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+<img src="Bins/Images/Pasted image 20241007095906.png" alt="" style="object-fit: scale-down">
+
+
+src: [Metrics @ CVE.org](https://www.cve.org/About/Metrics)
+</div></script></section><section ><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+History
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+- 1950s Gerald M. Weinberg, "Trash-deck technique"
+- 1983, Steve Capps, “The Monkey”
+- 1988, Barton Miller, “fuzz” term
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+<img src="Bins/Images/Pasted image 20241007100031.png" alt="" style="object-fit: scale-down">
+
+src: [Infinite monkey theorem @ Wikipedia](https://en.wikipedia.org/wiki/Infinite_monkey_theorem)
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+_We didn't call it fuzzing back in the 1950s, but it was our standard practice to test programs by inputting decks of punch cards taken from the trash. [...] Every programmer I knew (and there weren't many of us back then, so I knew a great proportion of them) used the trash-deck technique._
+
+<img src="Bins/Images/Pasted image 20241007153746.png" alt="" style="object-fit: scale-down">
+
+src: [Fuzz testing and fuzz history](https://secretsofconsulting.blogspot.com/2017/02/fuzz-testing-and-fuzz-history.html)
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+*It was a dark and stormy night. Really.* 
+*[...]*
+*I needed to give this kind of testing a name. I wanted a name that would evoke the feeling of random, unstructured data. After trying out several ideas, I settled on the term fuzz*.
+
+Barton Miller
+
+src: [Fuzz Testing Book foreword](https://pages.cs.wisc.edu/~bart/fuzz/Foreword1.html)
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+```
+fuzz-generator | sed
+fuzz-generator | mail
+fuzz-generator | less
+fuzz-generator | make
+```
+</div></script></section></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Базовое устройство фаззера
+<img src="Bins/Images/Pasted image 20241007154051.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+[AFL](https://lcamtuf.coredump.cx/afl/)
+
+<img src="Bins/Images/Pasted image 20241007100745.png" alt="" style="object-fit: scale-down">
+
+
+https://lcamtuf.coredump.cx/afl/rabbit.gif
+
+Src: [Michal Zalewski @ afl-users group](https://groups.google.com/g/afl-users/c/_kNrt_n5Nug/m/vcZvl2Y7C7EJ)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+[AFL](https://lcamtuf.coredump.cx/afl/) & [AFL++](https://github.com/AFLplusplus/AFLplusplus)
+
+<img src="Bins/Images/Pasted image 20241007103207.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Три кита фаззинга:
+- мутации
+- обратная связь
+- учет критических состояний
+</div></script></section><section ><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Обратная связь
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+<img src="Bins/Images/Pasted image 20241007154210.png" alt="" style="object-fit: scale-down">
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Обратная связь:
+- по кодам возврата (в первую очередь для web) 
+- с привязкой к исходному коду (функции, ветви, строки)
+- с привязкой к бинарному коду (базовые блоки)
+- с учетом состояний констант (исключительные случаи)
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Градации наличия обратной связи: 
+- black-box
+- gray-box
+- white-box
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Black-box
+
+<img src="Bins/Images/Pasted image 20241007153043.png" alt="" style="object-fit: scale-down">
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Black-box
+<img src="Bins/Images/Pasted image 20241007153115.png" alt="" style="object-fit: scale-down">
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Grey-box
+<img src="Bins/Images/Pasted image 20241007153143.png" alt="" style="object-fit: scale-down">
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+White-box
+<img src="Bins/Images/Pasted image 20241007153203.png" alt="" style="object-fit: scale-down">
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+<img src="Bins/Images/Pasted image 20241007100137.png" alt="" style="object-fit: scale-down">
+
+
+src: [Preidel, Cornelius & Borrmann, Andre. (2015). Automated Code Compliance Checking Based on a Visual Language and Building Information Modeling. 10.13140/RG.2.1.1542.2805.](https://www.researchgate.net/publication/280316613_Automated_Code_Compliance_Checking_Based_on_a_Visual_Language_and_Building_Information_Modeling)
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Обратная связь:
+- по кодам возврата (в первую очередь для web) 
+- **с привязкой к исходному коду (функции, ветви, строки)**
+- с привязкой к бинарному коду (базовые блоки)
+- с учетом состояний констант (исключительные случаи)
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Пример "привязки к исходному коду":
+
+```C++
+#include <iostream>
+
+int main() {
+    int number;
+    std::cin >> number;
+    if (number < 100) {
+        std::cout << '1' << std::endl;
+        // ....
+    }
+    else {
+        std::cout << '2' << std::endl;
+        // ...
+    }
+}
+```
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Виды компиляторного инструментирования:
+- На уровне единицы трансляции: afl (до plusplus) afl-clang-fast(++). Быстрое, но приводит к коллизиям учета путей для больших фаззинг-целей
+- На уровне компоновщика (LTO). Предпочтительный способ инструментирования в afl++, так работает компилятор afl-clang-lto(++). Медленно, но устраняет коллизии учета путей для больших фаззинг-целей
+</div></script></section></section><section ><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Малая часть нормативных документов с требованиями по фаззингу (1/3):
+
+ - приказ ФСТЭК России от 25.12.2017 №239 «Об утверждении требований по обеспечению безопасности значимых объектов критической информационной инфраструктуры Российской Федерации» 
+ - ISO 26262 Road vehicles – Functional Safety
+ - UNECE WP.29 United Nations World Forum for Harmonization of Vehicle Regulations
+ - ISA/IEC 62443-4-1 Secure Product Development Lifecycle Requirements
+ -
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Малая часть нормативных документов с требованиями по фаззингу (2/3):
+
+ - ISO/SAE DIS 21434 Road Vehicles — Cybersecurity Engineering
+ - UL2900-1 and UL2900-2-1 Healthcare and Wellness Systems - Software Cybersecurity for Network-Connectable Products
+ - ISO/IEC/IEEE 29119 Software and Systems Engineering - Software Testing
+ - ISO/IEC 12207 Systems and Software Engineering – Software Life Cycle Processes
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Малая часть нормативных документов с требованиями по фаззингу (3/3):
+ - ISO 27001 Information Technology – Security Techniques – Information Security Management Systems
+ - ISO 22301 Security and Resilience — Business Continuity Management Systems
+ - NIST SP 800-95 Web Services — standard for software testing (USA) and others
+
+src: [What is fuzz testing @ Code Intelligence](https://www.code-intelligence.com/what-is-fuzz-testing)
+</div></script></section></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Фаззинг cppcheck
+```shell
+git clone https://git.altlinux.org/gears/c/cppcheck.git
+sudo apt-get install AFLplusplus llvm15.0 cmake
+
+cd cppcheck
+CC=afl-clang-lto CXX=afl-clang-lto++ cmake .
+CC=afl-clang-lto CXX=afl-clang-lto++ make
+
+mkdir input
+echo "test" > input/1
+afl-fuzz -i input/ -o out/ -- ./bin/cppcheck @@
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Источники:
+- [Максим Пелевин. Устройство фаззера (PHDays 2 talk)](https://phdays.com/ru/forum/broadcast/?talk=761&tag=languages-and-tools)
+- [Видеолекции для специалистов в области информационной безопасности ФСТЭК России](https://bdu.fstec.ru/education)
+- Лекции Пономарева Д.В. и Курмангалеева Ш.Ф. в рамках курса повышения квалификации ИСП РАН по фаззинг-тестированию
+</div></script></section></div>
+    </div>
+
+    <script src="dist/reveal.js"></script>
+
+    <script src="plugin/markdown/markdown.js"></script>
+    <script src="plugin/highlight/highlight.js"></script>
+    <script src="plugin/zoom/zoom.js"></script>
+    <script src="plugin/notes/notes.js"></script>
+    <script src="plugin/math/math.js"></script>
+	<script src="plugin/mermaid/mermaid.js"></script>
+	<script src="plugin/chart/chart.min.js"></script>
+	<script src="plugin/chart/plugin.js"></script>
+	<script src="plugin/menu/menu.js"></script>
+	<script src="plugin/customcontrols/plugin.js"></script>
+
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+	  function isLight(color) {
+		let hex = color.replace('#', '');
+
+		// convert #fff => #ffffff
+		if(hex.length == 3){
+			hex = `${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`;
+		}
+
+		const c_r = parseInt(hex.substr(0, 2), 16);
+		const c_g = parseInt(hex.substr(2, 2), 16);
+		const c_b = parseInt(hex.substr(4, 2), 16);
+		const brightness = ((c_r * 299) + (c_g * 587) + (c_b * 114)) / 1000;
+		return brightness > 155;
+	}
+
+	var bgColor = getComputedStyle(document.documentElement).getPropertyValue('--r-background-color').trim();
+	var isLight = isLight(bgColor);
+
+	if(isLight){
+		document.body.classList.add('has-light-background');
+	} else {
+		document.body.classList.add('has-dark-background');
+	}
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath.MathJax3,
+		  RevealMermaid,
+		  RevealChart,
+		  RevealCustomControls,
+		  RevealMenu,
+        ],
+
+
+    	allottedTime: 120 * 1000,
+
+		mathjax3: {
+			mathjax: 'plugin/math/mathjax/tex-mml-chtml.js',
+		},
+		markdown: {
+		  gfm: true,
+		  mangle: true,
+		  pedantic: false,
+		  smartLists: false,
+		  smartypants: false,
+		},
+
+		mermaid: {
+			theme: isLight ? 'default' : 'dark',
+		},
+
+		customcontrols: {
+			controls: [
+			]
+		},
+		menu: {
+			loadIcons: false
+		}
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"width":960,"height":700,"margin":0.04,"controls":true,"progress":true,"slideNumber":true,"transition":"slide","transitionSpeed":"default"}, queryOptions);
+    </script>
+
+    <script>
+      Reveal.initialize(options);
+    </script>
+  </body>
+
+  <!-- created with Advanced Slides -->
+</html>
