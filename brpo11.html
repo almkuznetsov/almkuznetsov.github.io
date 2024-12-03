@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title></title>
+    <link rel="stylesheet" href="dist/reveal.css" />
+    <link rel="stylesheet" href="dist/theme/white.css" id="theme" />
+    <link rel="stylesheet" href="plugin/highlight/zenburn.css" />
+	<link rel="stylesheet" href="css/layout.css" />
+	<link rel="stylesheet" href="plugin/customcontrols/style.css">
+
+
+
+    <script defer src="dist/fontawesome/all.min.js"></script>
+
+	<script type="text/javascript">
+		var forgetPop = true;
+		function onPopState(event) {
+			if(forgetPop){
+				forgetPop = false;
+			} else {
+				parent.postMessage(event.target.location.href, "app://obsidian.md");
+			}
+        }
+		window.onpopstate = onPopState;
+		window.onmessage = event => {
+			if(event.data == "reload"){
+				window.document.location.reload();
+			}
+			forgetPop = true;
+		}
+
+		function fitElements(){
+			const itemsToFit = document.getElementsByClassName('fitText');
+			for (const item in itemsToFit) {
+				if (Object.hasOwnProperty.call(itemsToFit, item)) {
+					var element = itemsToFit[item];
+					fitElement(element,1, 1000);
+					element.classList.remove('fitText');
+				}
+			}
+		}
+
+		function fitElement(element, start, end){
+
+			let size = (end + start) / 2;
+			element.style.fontSize = `${size}px`;
+
+			if(Math.abs(start - end) < 1){
+				while(element.scrollHeight > element.offsetHeight){
+					size--;
+					element.style.fontSize = `${size}px`;
+				}
+				return;
+			}
+
+			if(element.scrollHeight > element.offsetHeight){
+				fitElement(element, start, size);
+			} else {
+				fitElement(element, size, end);
+			}		
+		}
+
+
+		document.onreadystatechange = () => {
+			fitElements();
+			if (document.readyState === 'complete') {
+				if (window.location.href.indexOf("?export") != -1){
+					parent.postMessage(event.target.location.href, "app://obsidian.md");
+				}
+				if (window.location.href.indexOf("print-pdf") != -1){
+					let stateCheck = setInterval(() => {
+						clearInterval(stateCheck);
+						window.print();
+					}, 250);
+				}
+			}
+	};
+
+
+        </script>
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides"><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+### Безопасная разработка программного обеспечения
+Занятие 11. Поверхность атаки. 
+
+02.12.2024
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+<img src="Bins/Images/Pasted image 20241202120308.png" alt="" style="object-fit: scale-down">
+
+src: [Lightning in a Bottle - 25 Years of Fuzzing (FuzzCon 2020)](https://docs.google.com/presentation/d/1L3ZmbCxdkZZCCrZ1gBI5Kj32rAnNNho3rZVzQXjnCvs)
+</div></script></section><section ><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+2020 г. Поверхность атаки = боль (1/2)
+
+>Для составления поверхности атаки необходимо ПО для аудита кода.
+>
+>Если у разработчиков уже есть готовые блок-схемы для программ из их проекта, то это значительно облегчит процесс.
+>
+>Если же нет, то искренне соболезнуем.
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Поверхность атаки = боль (2/2)
+>Далее из составленной блок-схемы необходимо извлечь те куски, где тем или иным способом могут попасть на вход данные из недоверенных источников.
+>
+>Так и определяется поверхность атаки.
+>
+>src: [DevSecOps: организация фаззинга исходного кода](https://habr.com/ru/companies/dsec/articles/517596/)
+</div></script></section></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+<img src="Bins/Images/Pasted image 20241202121418.png" alt="" style="object-fit: scale-down">
+
+src: [DevSecOps: организация фаззинга исходного кода](https://habr.com/ru/companies/dsec/articles/517596/)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+- Как бы Вы «ломали» свой продукт, если бы на кону стояли ₽1 000 000 000 против Ваших жизни и здоровья? (с)
+- Основное внимание модулям поверхности атаки, доступным нарушителю напрямую. Затем – модулям, доступным транзитивно, посредством «вердиктов», поступающих от модулей, ранее определенных как составляющие поверхность атаки
+</div></script></section><section ><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Пример формулы, описывающей отношение к поиску поверхности атаки:
+
+`$\frac{S * C * P * V * L}{E * H * O}$`
+
+S – максимальный размер блока данных от нарушителя, поступающий в участок кода
+
+C – сложность (например [цикломатическая](https://ru.wikipedia.org/wiki/Цикломатическая_сложность)) участка кода
+
+P – приоритетность кода (в терминах среды функционирования и прав доступа)
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+`$\frac{S * C * P * V * L}{E * H * O}$`
+
+V – значимость кода для безопасности (УПД, наличие функций execv и т. п.)
+
+L – legacy-фактор (непопулярный, давно не обновлявшийся, но достижимый код)
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+`$\frac{S * C * P * V * L}{E * H * O}$`
+
+E – сложность входных параметров функции (типы и число параметров) 
+
+H – наличие криптографических и хэширующих преобразований 
+
+O – наличие взамодействия с внешними сущностями (СУБД, объекты ядра и т.п.)
+</div></script></section></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+[kubernetes pkg/util/parsers/parsers.go](https://github.com/kubernetes/kubernetes/blob/master/pkg/util/parsers/parsers.go)
+```
+func ParseImageName(image string) (string, string, string, error) {
+	named, err := dockerref.ParseNormalizedNamed(image)
+	if err != nil {
+		return "", "", "", fmt.Errorf("couldn't parse image name %q: %v", image, err)
+	}
+
+	repoToPull := named.Name()
+	var tag, digest string
+
+	tagged, ok := named.(dockerref.Tagged)
+	if ok {
+		tag = tagged.Tag()
+	}
+
+	digested, ok := named.(dockerref.Digested)
+	if ok {
+		digest = digested.Digest().String()
+	}
+	// If no tag was specified, use the default "latest".
+	if len(tag) == 0 && len(digest) == 0 {
+		tag = "latest"
+	}
+	return repoToPull, tag, digest, nil
+}
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+[pugixml src/pugixml.cpp](https://github.com/zeux/pugixml/blob/master/src/pugixml.cpp)
+```
+	PUGI_IMPL_FN char_t* strconv_escape(char_t* s, gap& g)
+	{
+		char_t* stre = s + 1;
+
+		switch (*stre)
+		{
+			case '#':	// &#...
+			{
+				unsigned int ucsc = 0;
+
+				if (stre[1] == 'x') // &#x... (hex code)
+				{
+					stre += 2;
+
+					char_t ch = *stre;
+
+					if (ch == ';') return stre;
+
+					for (;;)
+					{
+						if (static_cast<unsigned int>(ch - '0') <= 9)
+							ucsc = 16 * ucsc + (ch - '0');
+						else if (static_cast<unsigned int>((ch | ' ') - 'a') <= 5)
+							ucsc = 16 * ucsc + ((ch | ' ') - 'a' + 10);
+						else if (ch == ';')
+							break;
+						else // cancel
+							return stre;
+[...]
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+[pugixml src/pugixml.cpp](https://github.com/zeux/pugixml/blob/master/src/pugixml.cpp)
+```
+char_t* parse_tree(char_t* s, xml_node_struct* root, unsigned int optmsk, char_t endch)
+		{
+			strconv_attribute_t strconv_attribute = get_strconv_attribute(optmsk);
+			strconv_pcdata_t strconv_pcdata = get_strconv_pcdata(optmsk);
+
+			char_t ch = 0;
+			xml_node_struct* cursor = root;
+			char_t* mark = s;
+			char_t* merged_pcdata = s;
+
+			while (*s != 0)
+			{
+				if (*s == '<')
+				{
+					++s;
+
+				LOC_TAG:
+					if (PUGI_IMPL_IS_CHARTYPE(*s, ct_start_symbol)) // '<#...'
+					{
+						PUGI_IMPL_PUSHNODE(node_element); // Append a new node to the tree.
+
+						cursor->name = s;
+
+						PUGI_IMPL_SCANWHILE_UNROLL(PUGI_IMPL_IS_CHARTYPE(ss, ct_symbol)); // Scan for a terminator.
+						PUGI_IMPL_ENDSEG(); // Save char in 'ch', terminate & step over.
+
+						if (ch == '>')
+						{
+							// end of tag
+						}
+						else if (PUGI_IMPL_IS_CHARTYPE(ch, ct_space))
+						{
+						LOC_ATTRIBUTES:
+							while (true)
+							{
+								PUGI_IMPL_SKIPWS(); // Eat any whitespace.
+
+								if (PUGI_IMPL_IS_CHARTYPE(*s, ct_start_symbol)) // <... #...
+								{
+									xml_attribute_struct* a = append_new_attribute(cursor, *alloc); // Make space for this attribute.
+									if (!a) PUGI_IMPL_THROW_ERROR(status_out_of_memory, s);
+
+									a->name = s; // Save the offset.
+
+									PUGI_IMPL_SCANWHILE_UNROLL(PUGI_IMPL_IS_CHARTYPE(ss, ct_symbol)); // Scan for a terminator.
+									PUGI_IMPL_ENDSEG(); // Save char in 'ch', terminate & step over.
+
+									if (PUGI_IMPL_IS_CHARTYPE(ch, ct_space))
+									{
+										PUGI_IMPL_SKIPWS(); // Eat any whitespace.
+
+										ch = *s;
+										++s;
+									}
+[...]
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+[kubernetes/staging/src/k8s.io/client-go/util/certificate
+/certificate_manager.go](https://github.com/kubernetes/kubernetes/blob/810e9e212ec5372d16b655f57b9231d8654a2179/staging/src/k8s.io/client-go/util/certificate/certificate_manager.go#L282)
+```
+func (m *manager) rotateCerts() (bool, error) {
+	m.logf("%s: Rotating certificates", m.name)
+
+	template, csrPEM, keyPEM, privateKey, err := m.generateCSR()
+	if err != nil {
+		utilruntime.HandleError(fmt.Errorf("%s: Unable to generate a certificate signing request: %v", m.name, err))
+		if m.certificateRenewFailure != nil {
+			m.certificateRenewFailure.Inc()
+		}
+		return false, nil
+	}
+
+	// request the client each time
+	clientSet, err := m.getClientset()
+	if err != nil {
+		utilruntime.HandleError(fmt.Errorf("%s: Unable to load a client to request certificates: %v", m.name, err))
+		if m.certificateRenewFailure != nil {
+			m.certificateRenewFailure.Inc()
+		}
+		return false, nil
+	}
+
+	getUsages := m.getUsages
+	if m.getUsages == nil {
+		getUsages = DefaultKubeletClientGetUsages
+	}
+	usages := getUsages(privateKey)
+	// Call the Certificate Signing Request API to get a certificate for the
+	// new private key
+	reqName, reqUID, err := csr.RequestCertificate(clientSet, csrPEM, "", m.signerName, m.requestedCertificateLifetime, usages, privateKey)
+	if err != nil {
+		utilruntime.HandleError(fmt.Errorf("%s: Failed while requesting a signed certificate from the control plane: %v", m.name, err))
+		if m.certificateRenewFailure != nil {
+			m.certificateRenewFailure.Inc()
+		}
+		return false, m.updateServerError(err)
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Основные критерии выбора цели для фаззинга:
+- простота входных параметров
+- отсутствие внешнего контекста
+- сложность (напр. цикломатическая) кода
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Автоматическое определение поверхности атаки - "серебряная пуля"
+
+[QEMU: A generic and open source machine emulator and virtualizer](https://www.qemu.org/)
+
+Инструмент для определения поверхности атаки [Natch](https://www.ispras.ru/technologies/natch/)
+
+[Тестовые примеры](https://github.com/ispras/natch/blob/release/docs/4_launch_test_samples.md)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Больше о Natch и анализе помеченных данных:
+- [Одна из первых статей об использовании Natch на Хабре](https://habr.com/ru/articles/651733/)
+- [Документация и гайды на github](https://github.com/ispras/natch/tree/release)
+- Еще один инструмент ИСП РАН для анализа помеченных данных - [Блесна](https://www.ispras.ru/technologies/blesna/)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Принципы минимизации поверхности атаки (1/2)
+- разработка должна предваряться и сопровождаться моделированием
+- принцип разграничения и минимизации прав доступа, в том числе с использованием технологий микросервисов, контейнеризации, виртуализации
+- минимизация внешних интерфейсов
+- приоритет управляемых языков программирования, безопасных компиляторов и интерпретаторов
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Принципы минимизации поверхности атаки (2/2)
+- переиспользование доверенных компонентов
+- тестирование и еще раз тестирование
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+https://www.isprasopen.ru/
+<img src="Bins/Images/Pasted image 20241202151529.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Источники:
+- Лекции Пономарева Д.В. и Курмангалеева Ш.Ф. в рамках курса повышения квалификации ИСП РАН по фаззинг-тестированию
+</div></script></section></div>
+    </div>
+
+    <script src="dist/reveal.js"></script>
+
+    <script src="plugin/markdown/markdown.js"></script>
+    <script src="plugin/highlight/highlight.js"></script>
+    <script src="plugin/zoom/zoom.js"></script>
+    <script src="plugin/notes/notes.js"></script>
+    <script src="plugin/math/math.js"></script>
+	<script src="plugin/mermaid/mermaid.js"></script>
+	<script src="plugin/chart/chart.min.js"></script>
+	<script src="plugin/chart/plugin.js"></script>
+	<script src="plugin/customcontrols/plugin.js"></script>
+
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+	  function isLight(color) {
+		let hex = color.replace('#', '');
+
+		// convert #fff => #ffffff
+		if(hex.length == 3){
+			hex = `${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`;
+		}
+
+		const c_r = parseInt(hex.substr(0, 2), 16);
+		const c_g = parseInt(hex.substr(2, 2), 16);
+		const c_b = parseInt(hex.substr(4, 2), 16);
+		const brightness = ((c_r * 299) + (c_g * 587) + (c_b * 114)) / 1000;
+		return brightness > 155;
+	}
+
+	var bgColor = getComputedStyle(document.documentElement).getPropertyValue('--r-background-color').trim();
+	var isLight = isLight(bgColor);
+
+	if(isLight){
+		document.body.classList.add('has-light-background');
+	} else {
+		document.body.classList.add('has-dark-background');
+	}
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath.MathJax3,
+		  RevealMermaid,
+		  RevealChart,
+		  RevealCustomControls,
+        ],
+
+
+    	allottedTime: 120 * 1000,
+
+		mathjax3: {
+			mathjax: 'plugin/math/mathjax/tex-mml-chtml.js',
+		},
+		markdown: {
+		  gfm: true,
+		  mangle: true,
+		  pedantic: false,
+		  smartLists: false,
+		  smartypants: false,
+		},
+
+		mermaid: {
+			theme: isLight ? 'default' : 'dark',
+		},
+
+		customcontrols: {
+			controls: [
+			]
+		},
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"width":960,"height":700,"margin":0.04,"controls":true,"progress":true,"slideNumber":false,"transition":"slide","transitionSpeed":"default"}, queryOptions);
+    </script>
+
+    <script>
+      Reveal.initialize(options);
+    </script>
+  </body>
+
+  <!-- created with Advanced Slides -->
+</html>
