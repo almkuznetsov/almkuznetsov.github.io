@@ -88,15 +88,27 @@
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
 ### Безопасная разработка программного обеспечения
-Занятие 2. Сборка пакетов
+Занятие 2. Сборка
 
-09.09.2024
+08.09.2025
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
 Трансляторы:
 - компиляторы (статические и динамические), адресат трансляции - устройство
 - интерпретаторы, адресат трансляции - программа
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+<img src="Bins/Images/Pasted image 20250217135139.png" alt="" style="object-fit: scale-down">
+
+src: [caiobatista.com](https://www.caiobatista.com/courses/uci/f22/ics45c/notes/02-compiling/) & [learningelectronics.net](https://www.learningelectronics.net/vol_5/chpt_7/3.html)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+<img src="Bins/Images/Pasted image 20250217135538.png" alt="" style="object-fit: scale-down">
+
+src: [boydeveloperc.blogspot.com](https://boydeveloperc.blogspot.com/2014/10/compiler-vs-interpreter-difference.html)
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
@@ -333,7 +345,7 @@ example-1.0-alt1
 
 Задание на практику
 
-Найти и собрать:
+Найти и собрать (не rpm-пакет, а просто бинарник):
 - pugixml
 - libslirp
 - cpufetch
@@ -353,7 +365,6 @@ example-1.0-alt1
 	<script src="plugin/mermaid/mermaid.js"></script>
 	<script src="plugin/chart/chart.min.js"></script>
 	<script src="plugin/chart/plugin.js"></script>
-	<script src="plugin/menu/menu.js"></script>
 	<script src="plugin/customcontrols/plugin.js"></script>
 
     <script>
@@ -410,7 +421,6 @@ example-1.0-alt1
 		  RevealMermaid,
 		  RevealChart,
 		  RevealCustomControls,
-		  RevealMenu,
         ],
 
 
@@ -435,15 +445,12 @@ example-1.0-alt1
 			controls: [
 			]
 		},
-		menu: {
-			loadIcons: false
-		}
       };
 
       // options from URL query string
       var queryOptions = Reveal().getQueryHash() || {};
 
-      var options = extend(defaultOptions, {"width":960,"height":700,"margin":0.04,"controls":true,"progress":true,"slideNumber":true,"transition":"slide","transitionSpeed":"default"}, queryOptions);
+      var options = extend(defaultOptions, {"width":960,"height":700,"margin":0.04,"controls":true,"progress":true,"slideNumber":false,"transition":"slide","transitionSpeed":"default"}, queryOptions);
     </script>
 
     <script>
