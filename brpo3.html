@@ -92,14 +92,7 @@
 
 Основано на Введении в статический анализ Дмитрия Журихина (ИСП РАН)
 
-16.09.2024
-</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
-<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
-
-Апдейт по дедлайнам:
-- Блок 1. Статический анализ. SAST-Labs 1-3 **Жесткий дедлайн 07.10.2024.**
-- Блок 2. Динамический анализ, фаззинг-тестирование.
-- Блок 3. Архитектурный анализ, компонентный анализ, управление уязвимостями, доп. темы
+15.09.2025
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
@@ -199,7 +192,7 @@ src: [Theory and Practice of Mechanized Software Analysis.](https://secwww.jhuap
 
 deref.cpp
 ```
-include <iostream>
+#include <iostream>
 
 int main() {
         char* p = NULL;
@@ -259,14 +252,9 @@ int main() {
 
 Статический анализатор с перехватом сборки: clang static analyzer
 ```shell
-sudo apt-get install clang17-analyzer llvm17.0
-scan-build-17 clang++ hidden-deref.cpp
+sudo apt-get install clang19.1-analyzer llvm19.1
+scan-build clang++ hidden-deref.cpp
 ```
-</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
-<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
-
-Практика:
-https://gitlab.basealt.space/kuznetsovam/sast-labs
 </div></script></section></div>
     </div>
 
@@ -280,7 +268,6 @@ https://gitlab.basealt.space/kuznetsovam/sast-labs
 	<script src="plugin/mermaid/mermaid.js"></script>
 	<script src="plugin/chart/chart.min.js"></script>
 	<script src="plugin/chart/plugin.js"></script>
-	<script src="plugin/menu/menu.js"></script>
 	<script src="plugin/customcontrols/plugin.js"></script>
 
     <script>
@@ -337,7 +324,6 @@ https://gitlab.basealt.space/kuznetsovam/sast-labs
 		  RevealMermaid,
 		  RevealChart,
 		  RevealCustomControls,
-		  RevealMenu,
         ],
 
 
@@ -362,15 +348,12 @@ https://gitlab.basealt.space/kuznetsovam/sast-labs
 			controls: [
 			]
 		},
-		menu: {
-			loadIcons: false
-		}
       };
 
       // options from URL query string
       var queryOptions = Reveal().getQueryHash() || {};
 
-      var options = extend(defaultOptions, {"width":960,"height":700,"margin":0.04,"controls":true,"progress":true,"slideNumber":true,"transition":"slide","transitionSpeed":"default"}, queryOptions);
+      var options = extend(defaultOptions, {"width":960,"height":700,"margin":0.04,"controls":true,"progress":true,"slideNumber":false,"transition":"slide","transitionSpeed":"default"}, queryOptions);
     </script>
 
     <script>
