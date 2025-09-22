@@ -92,11 +92,88 @@
 
 Основано на Введении в статический анализ Дмитрия Журихина (ИСП РАН)
 
-23.09.2024
+22.09.2025
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
 [CWE Top 25 2023](https://cwe.mitre.org/top25/archive/2023/2023_top25_list.html)
+
+"Иерархия" внутри CWE:
+<img src="Bins/Images/Презентация БРПО 4 занятие-1758529528467.jpeg" alt="" style="object-fit: scale-down">
+
+src: [cwe.mitre.org](https://cwe.mitre.org/documents/cwe_usage/guidance.html)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Не к каждому CWE можно привязать конкретную уязвимость:
+<img src="Bins/Images/Презентация БРПО 4 занятие-1758529620996.jpeg" alt="" style="object-fit: scale-down">
+
+src: [cwe.mitre.org](https://cwe.mitre.org/documents/cwe_usage/guidance.html)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Дополнительная сущность в CWE - Views
+
+- Все CWE начиная с 10 базовых pillars содержатся в Research View: [CWE-1000](https://cwe.mitre.org/data/definitions/1000.html)
+- Существуют свои Views под разные задачи, например неглубокий (максимум 2 уровня) "для разработчиков": [CWE-669](https://cwe.mitre.org/data/definitions/699.html)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+"View" ГОСТ Р 71207-2024 (проблема - нет прямого маппинга на CWE):
+
+Критические ошибки группируют по типам в зависимости от языка программирования. 
+Для компилируемых языков к типам критических ошибок относят следующие общие типы (1/3):
+- а) ошибки непроверенного использования чувствительных данных (ввода пользователя, файлов, сети и пр.);
+	- CWE-707 (Pillar): Improper Neutralization?
+	- CWE-664 (Pillar): Improper Control of a Resource Through its Lifetime?
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+(2/3)
+- б) ошибки целочисленного переполнения и некорректного совместного использования знаковых и беззнаковых чисел;
+	- CWE-682 (Pillar): Incorrect Calculation?
+- в) ошибки переполнения буфера (записи или чтения за пределами выделенной для буфера памяти);
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+(3/3)
+- г) ошибки некорректного использования системных процедур и интерфейсов, связанных с обеспечением информационной безопасности (шифрования, разграничения доступа и пр.);
+- д) ошибки при работе с многопоточными примитивами (интерфейсами запуска потоков на выполнение, синхронизации и обмена данными между потоками и пр.).
+
+п. 6.3 ГОСТ Р 71207-2024
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Для заданного языка программирования типы критических ошибок, приведенные в 6.3 и 6.4, могут дополняться. Для языков C/C++ в дополнение к 6.3 следующие типы ошибок являются критическими (1/3):
+- а) ошибки разыменования нулевого указателя;
+- б) ошибки деления на ноль;
+- в) ошибки управления динамической памятью (выделения, освобождения, использования освобожденной памяти);
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+(2/3)
+- г) ошибки использования форматной строки;
+- д) ошибки использования неинициализированных переменных;
+	- CWE-664 (Pillar): Improper Control of a Resource Through its Lifetime
+		- CWE-909 (Class): Missing Initialization of Resource
+		- CWE-908 (Base): Use of Uninitialized Resource
+			- CWE-457 (Variant): Use of Uninitialized Variable
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+(3/3)
+- е) ошибки утечек памяти, незакрытых файловых дескрипторов и дескрипторов сетевых соединений
+
+п. 6.5 ГОСТ Р 71207-2024
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Как проверять, находит ли анализатор указанные ошибки?
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Открытые тесты этапа "Домашнее задание" испытаний СА под патронажем ФСТЭК России:
+https://altlinux.space/rbpo-community/sa-tests-db
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
@@ -214,6 +291,31 @@ void thread2() {
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
+Уровни статического анализа
+<img src="Bins/Images/Pasted image 20240923162705.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+СА должен реализовывать (п. 7.4):
+- внутрипроцедурный анализ потоков данных и управления;
+- межпроцедурный и межмодульный контекстно-чувствительный анализ потока данных;
+- чувствительный к путям выполнения анализ потоков данных и управления;
+- межпроцедурный и межмодульный контекстно-чувствительный анализ помеченных данных;
+- анализ программы на синтаксическом уровне
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+В состав реализуемых методов статического анализа следует включать следующие методы анализа для поиска дополнительных типов ошибок, а также в качестве вспомогательных анализов:
+- а) сигнатурный поиск;
+- б) анализ псевдонимов;
+- в) анализ косвенных вызовов;
+- г) статистический анализ;
+- д) анализ иерархии классов.
+
+п. 7.4 ГОСТ Р 71207-2024
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
 Виды статического анализа
 ```
 void foo (void) {
@@ -265,11 +367,16 @@ void bar (char *p, int x) {
 		*p = 42; // Ошибка
 }
 ```
+Чувствительный к потоку анализ не может проанализировать, существует ли пересечение условий, мы знаем только, что когда-то p = NULL, а когда-то p разыменовывается. 
+
 Требование: чувствительный к путям анализ.
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
+Всё это был внутрипроцедурный анализ - анализ одной функции
+
 Разыменование NULL в вызываемой функции.
+
 ```
 void foo (char *p, int x) {
 	if (p != NULL)
@@ -291,6 +398,8 @@ void cderef (char *p, int x) {
 		*p = 42;
 }
 ```
+Если объединить этот код в одну функцию, то предыдущие виды анализа смогут дать какую-то информацию, но нам нужно связать вызов функции со значениями переменных
+
 Требование: межпроцедурный чувствительный к контексту анализ.
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
@@ -309,6 +418,8 @@ void func (struct s *p) {
 	}
 }
 ```
+Одна и та же ячейка памяти может именоваться по-разному. Все предыдущие анализы требуют понимая, какая ячейка памяти изменяется. С какого-то момента это может быть не очевидно. Задача узнавания всех точных имен ячейки памяти тоже алгоритмически неразрешима. Стараемся понять, какие потенциальные множества ячеек могут затрагиваться проверяемым условием. 
+
 Требование: анализ псевдонимов (алиасов).
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
@@ -347,6 +458,8 @@ void foo(unsigned i) {
 	buf[x] = 42 // Ошибка
 }
 ```
+Нужен какой-либо чувстительный к путям/потоку анализ, который будет хранить возможные значения целочисленных переменных
+
 Требование: анализ связей между значениями (интервальный или точнее).
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
@@ -377,11 +490,6 @@ void foo() {
 }
 ```
 Требование: анализ недостижимого кода, учёт функций, не возвращающих управление.
-</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
-<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
-
-Уровни статического анализа
-<img src="Bins/Images/Pasted image 20240923162705.png" alt="" style="object-fit: scale-down">
 </div></script></section></div>
     </div>
 
@@ -395,7 +503,6 @@ void foo() {
 	<script src="plugin/mermaid/mermaid.js"></script>
 	<script src="plugin/chart/chart.min.js"></script>
 	<script src="plugin/chart/plugin.js"></script>
-	<script src="plugin/menu/menu.js"></script>
 	<script src="plugin/customcontrols/plugin.js"></script>
 
     <script>
@@ -452,7 +559,6 @@ void foo() {
 		  RevealMermaid,
 		  RevealChart,
 		  RevealCustomControls,
-		  RevealMenu,
         ],
 
 
@@ -477,15 +583,12 @@ void foo() {
 			controls: [
 			]
 		},
-		menu: {
-			loadIcons: false
-		}
       };
 
       // options from URL query string
       var queryOptions = Reveal().getQueryHash() || {};
 
-      var options = extend(defaultOptions, {"width":960,"height":700,"margin":0.04,"controls":true,"progress":true,"slideNumber":true,"transition":"slide","transitionSpeed":"default"}, queryOptions);
+      var options = extend(defaultOptions, {"width":960,"height":700,"margin":0.04,"controls":true,"progress":true,"slideNumber":false,"transition":"slide","transitionSpeed":"default"}, queryOptions);
     </script>
 
     <script>
