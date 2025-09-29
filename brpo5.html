@@ -92,7 +92,13 @@
 
 Основано на Введении в статический анализ Дмитрия Журихина (ИСП РАН)
 
-23.09.2024
+29.09.2025
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Обновления по дедлайнам:
+- Дедлайн ЛР по статике (SAST-{1,2,3,4}) - 27.10.2025
+- РК - 27.10.2025
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
@@ -101,6 +107,12 @@
 - Специалисты по информационно-технологическому обслуживанию: *как интегрировать анализатор в цикл разработки*?
 - Программисты: *как исправить найденные дефекты*?
 - Специалисты по безопасности: *как оценить и увеличить степень безопасности продукта*?
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+<img src="Bins/Images/Pasted image 20250217140042.png" alt="" style="object-fit: scale-down">
+
+src: [ГК "Конфидинет" на ТБ Форуме 2025](https://www.tbforum.ru/hubfs/Digital/SS/SS_ADAPT/TBF_13-02-25_RBPO_Шаньгин_Воскресенский.pdf?hsLang=ru)
 </div></script></section><section ><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
@@ -327,17 +339,38 @@
 </div></script></section></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
-Разбор нескольких срабатываний Svace:
-Critical:
-- [DEREF_AFTER_NULL.EX](https://svacer.basealt.space/mode/review/project/d5d0c818-5467-44c8-a060-76ef5165d0cf/branch/7add2c3f-e506-4c21-9a9b-7496fe05cdfa/snapshot/ace06890-ef75-40ea-9c41-6700ff0309a1/filter/eyJ3YXJuQ2xhc3MiOlsiREVSRUZfQUZURVJfTlVMTC5FWC9DWFgiXX0=/marker/eyJtYXJrZXJJRCI6ImQwMjY1OTk2LTY1MWYtNDU2Mi1iYmM3LTBkYjdmMjJjNDY2YyIsImZpbGUiOiIvdXNyL3NyYy9SUE0vQlVJTEQvcG9zdGdyZXNxbDE2LTE2LjMvc3JjL2JhY2tlbmQvY29tbWFuZHMvdHJpZ2dlci5jIn0=)
-- [BUFFER_OVERFLOW](https://svacer.basealt.space/mode/review/project/d5d0c818-5467-44c8-a060-76ef5165d0cf/branch/7add2c3f-e506-4c21-9a9b-7496fe05cdfa/snapshot/ace06890-ef75-40ea-9c41-6700ff0309a1/filter/eyJ3YXJuQ2xhc3MiOlsiQlVGRkVSX09WRVJGTE9XL0NYWCJdfQ==/marker/eyJtYXJrZXJJRCI6ImUxOWMwM2QwLWNkNDktNDdiMi05OTUwLWYyODEzNzAwOWFjNiIsImZpbGUiOiIvdXNyL3NyYy9SUE0vQlVJTEQvcG9zdGdyZXNxbDE2LTE2LjMvc3JjL2JhY2tlbmQvc3RhdGlzdGljcy9kZXBlbmRlbmNpZXMuYyJ9)
+<div class="" style="position: absolute; left: 0%; top: 12.5%; height: 75%; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center" >
 
-Major:
-- [TAINTED.INT_OVERFLOW](https://svacer.basealt.space/mode/review/project/d5d0c818-5467-44c8-a060-76ef5165d0cf/branch/7add2c3f-e506-4c21-9a9b-7496fe05cdfa/snapshot/ace06890-ef75-40ea-9c41-6700ff0309a1/filter/eyJ3YXJuQ2xhc3MiOlsiVEFJTlRFRC5JTlRfT1ZFUkZMT1cvQ1hYIl19/marker/eyJtYXJrZXJJRCI6IjFjZWY0ZjYwLTZjYTktNDdkYi1hYzg1LTUyNjAyZjRhNDYwYyIsImZpbGUiOiIvdXNyL3NyYy9SUE0vQlVJTEQvcG9zdGdyZXNxbDE2LTE2LjMvc3JjL2JhY2tlbmQvYWNjZXNzL3RyYW5zYW0vc2xydS5jIn0=)
-- [WRONG_ARGUMENTS_ORDER](https://svacer.basealt.space/mode/review/project/d5d0c818-5467-44c8-a060-76ef5165d0cf/branch/7add2c3f-e506-4c21-9a9b-7496fe05cdfa/snapshot/ace06890-ef75-40ea-9c41-6700ff0309a1/filter/eyJ3YXJuQ2xhc3MiOlsiV1JPTkdfQVJHVU1FTlRTX09SREVSL0NYWCJdfQ<mark>/marker/eyJtYXJrZXJJRCI6Ijk0ZGY3MjRiLTNkZGEtNDM4YS04ZTk3LWQzM2U5Y2NiOTBmZCIsImZpbGUiOiIvdXNyL3NyYy9SUE0vQlVJTEQvcG9zdGdyZXNxbDE2LTE2LjMvc3JjL2JhY2tlbmQvdXRpbHMvYWR0L3NlbGZ1bmNzLmMifQ</mark>)
-- [USER.BAD_PRIVILEGE](https://svacer.basealt.space/mode/review/project/d5d0c818-5467-44c8-a060-76ef5165d0cf/branch/7add2c3f-e506-4c21-9a9b-7496fe05cdfa/snapshot/ace06890-ef75-40ea-9c41-6700ff0309a1/filter/eyJ3YXJuQ2xhc3MiOlsiVVNFUi5CQURfUFJJVklMRUdFL0NYWCJdfQ==/marker/eyJtYXJrZXJJRCI6IjJiZWFjNTNjLTM3ZTEtNGNkYi04OWMyLTc5MWE1MDQ1NDkxZSIsImZpbGUiOiIvdXNyL3NyYy9SUE0vQlVJTEQvcG9zdGdyZXNxbDE2LTE2LjMvc3JjL2JhY2tlbmQvcG9zdG1hc3Rlci9mb3JrX3Byb2Nlc3MuYyJ9)
-- [UNINIT.CTOR.MANY](https://svacer.basealt.space/mode/review/project/d5d0c818-5467-44c8-a060-76ef5165d0cf/branch/7add2c3f-e506-4c21-9a9b-7496fe05cdfa/snapshot/ace06890-ef75-40ea-9c41-6700ff0309a1/filter/eyJ3YXJuQ2xhc3MiOlsiVU5JTklULkNUT1IuTUFOWS9DWFgiXX0=/marker/eyJtYXJrZXJJRCI6IjU3MmJjN2E1LTdiYTctNGJkOC1hYjk2LTI2OWNiZDBjYWJhNiIsImZpbGUiOiIvdXNyL2xpYi9sbHZtLTEzLjAvaW5jbHVkZS9sbHZtL0FEVC9Ud2luZS5oIn0=)
-- [SIMILAR_BRANCHES](https://svacer.basealt.space/mode/review/project/d5d0c818-5467-44c8-a060-76ef5165d0cf/branch/7add2c3f-e506-4c21-9a9b-7496fe05cdfa/snapshot/ace06890-ef75-40ea-9c41-6700ff0309a1/filter/eyJ3YXJuQ2xhc3MiOlsiU0lNSUxBUl9CUkFOQ0hFUy9DWFgiXX0=/marker/eyJtYXJrZXJJRCI6IjM3ZDM5ZThjLWZjNTMtNGM5Ni05M2JiLThjYzYxNTRlOGE5MyIsImZpbGUiOiIvdXNyL3NyYy9SUE0vQlVJTEQvcG9zdGdyZXNxbDE2LTE2LjMvc3JjL2JhY2tlbmQvb3B0aW1pemVyL3BsYW4vcGxhbm5lci5jIn0=)
+Статический анализатор [Svace](https://www.ispras.ru/technologies/svace/)
+
+<img src="Bins/Images/AppSec SAST-2-1744118848969.jpeg" alt="" style="object-fit: scale-down">
+
+</div>
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Сработка детектора WRONG_ARGUMENTS_ORDER - Won't fix
+
+<img src="Bins/Images/AppSec SAST-2-1744118947999.jpeg" alt="" style="object-fit: scale-down">
+
+<img src="Bins/Images/AppSec SAST-2-1744119000744.jpeg" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Сработка детектора SIMILAR_BRANCHES - Won't fix
+<img src="Bins/Images/AppSec SAST-2-1744119095969.jpeg" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Сработка детектора USER.BAD_PRIVILEGE - False Positive
+
+<img src="Bins/Images/AppSec SAST-2-1744119253393.jpeg" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Дополнительно:
+- [Слайды](https://pt-phdays.storage.yandexcloud.net/Vishnyakov_Aleksej_Sovremennye_vyzovy_i_resheniya_v_bezopasnoj_razrabotke_oblachnyh_servisov_771f888bdd.pdf) (30-38) и [выступление](https://www.youtube.com/watch?v=w_Ej8s-AWqk) Алексея Вишнякова об исследованиях открытых статанализаторов
+- https://github.com/analysis-tools-dev/static-analysis - большой список существующих статанализаторов под разные языки
 </div></script></section></div>
     </div>
 
@@ -351,7 +384,6 @@ Major:
 	<script src="plugin/mermaid/mermaid.js"></script>
 	<script src="plugin/chart/chart.min.js"></script>
 	<script src="plugin/chart/plugin.js"></script>
-	<script src="plugin/menu/menu.js"></script>
 	<script src="plugin/customcontrols/plugin.js"></script>
 
     <script>
@@ -408,7 +440,6 @@ Major:
 		  RevealMermaid,
 		  RevealChart,
 		  RevealCustomControls,
-		  RevealMenu,
         ],
 
 
@@ -433,15 +464,12 @@ Major:
 			controls: [
 			]
 		},
-		menu: {
-			loadIcons: false
-		}
       };
 
       // options from URL query string
       var queryOptions = Reveal().getQueryHash() || {};
 
-      var options = extend(defaultOptions, {"width":960,"height":700,"margin":0.04,"controls":true,"progress":true,"slideNumber":true,"transition":"slide","transitionSpeed":"default"}, queryOptions);
+      var options = extend(defaultOptions, {"width":960,"height":700,"margin":0.04,"controls":true,"progress":true,"slideNumber":false,"transition":"slide","transitionSpeed":"default"}, queryOptions);
     </script>
 
     <script>
