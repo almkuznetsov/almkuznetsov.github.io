@@ -90,7 +90,13 @@
 ### Безопасная разработка программного обеспечения
 Занятие 7. Фаззинг 2. 
 
-21.10.2024
+20.10.2025
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Новости по дедлайнам и РК:
+- Все работы, отправленные до 22.10 получат минимум одну итерацию ревью до 24.10, для всех остальных гарантируется только проверка после дедлайна без возможности исправлений
+- Примерный вариант РК выдается сегодня
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
@@ -99,8 +105,40 @@
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
+Три кита фаззинга:
+- **мутации**
+- обратная связь
+- учет критических состояний
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
 Фаззинг с мутациями
 <img src="Bins/Images/Pasted image 20241021103706.png" alt="" style="object-fit: scale-down">
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Примеры мутаций (https://lcamtuf.blogspot.com/2014/08/binary-fuzzing-strategies-what-works.html)
+- Walking bit flips
+	- Flipping a single bit: ~70 new paths per one million generated inputs,
+	- Flipping two bits in a row: ~20 paths per 1m,
+	- <..>
+- Walking byte flips
+- Simple arithmetics
+- Known integers (e.g., -1, 1024, MAX_INT-1, MAX_INT)
+- Test case splicing
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+<div class="" style="position: absolute; left: 30%; top: 20%; height: 60%; width: 40%; display: flex; flex-direction: column; align-items: center; justify-content: center" >
+
+
+Как обратная связь и мутации помогают искать новые тест кейсы
+
+<img src="Bins/Images/Презентация БРПО 7 занятие. Фаззинг 2-1760961495999.jpeg" alt="" style="object-fit: scale-down">
+
+src: https://lcamtuf.coredump.cx/afl/afl_gzip.png
+
+</div>
 </div></script></section><section ><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
@@ -240,6 +278,36 @@
 
 <img src="Bins/Images/Pasted image 20241021104823.png" alt="" style="object-fit: scale-down">
 </div></script></section></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Входной корпус и словари
+
+Без примера входных данных сложно пройти фильтр "А валидный ли это SQL-запрос/XML-объект/json-объект?"
+
+Пример PNG-файла, где первые 4 байта секции - человекочитаемая magic-value `.PNG`
+```
+89 50 4e 47 0d 0a 1a 0a 00 00 00 0d 49 48 44 52 | .PNG........IHDR  
+00 00 00 20 00 00 00 20 02 03 00 00 00 0e 14 92 | ................
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Фаззер может обнаружить такие места, отмечая, что изменение magic values дает резкое изменение покрытия, при этом оно не меняется от других мутаций (https://lcamtuf.blogspot.com/2015/01/afl-fuzz-making-up-grammar-with.html)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+При этом даже имея корпус прийти от
+
+```
+SELECT * FROM table1
+```
+
+к
+```
+INSERT INTO table1 VALUES (1,1,1)
+```
+путем бит-флипов достаточно сложно
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
 Примеры входных корпусов и словарей:
