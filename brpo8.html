@@ -90,7 +90,7 @@
 ### Безопасная разработка программного обеспечения
 Занятие 8. Фаззинг 3. 
 
-11.11.2024
+10.11.2025
 </div></script></section><section ><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
@@ -225,7 +225,40 @@ int block_is_single(block b) {
   return b.first && b.first == b.last;
 }
 ```
-</div></script></section></section><section ><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+</div></script></section></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+xml_validate.c
+
+Dead assignment - value stored in failed never read
+```cpp
+for (i=start; i<argc; i++)
+{
+	xmlDocPtr doc;
+	int failed;
+
+	failed = 0;
+	doc = NULL;
+
+	errorInfo.filename = argv[i];
+	doc = xmlReadFile(argv[i], NULL, options);
+	if (doc)
+	{
+		/* TODO: precompile DTD once */                
+		failed = valAgainstDtd(&ops, ops.dtd, doc, argv[i]);
+		xmlFreeDoc(doc);
+	}
+	else
+	{
+		failed = 1; /* Malformed XML or could not open file */
+		if ((ops.listGood < 0) && !ops.show_val_res)
+		{
+			fprintf(stdout, "%s\n", argv[i]);
+		}
+	}
+	if (failed) invalidFound = 1;
+```
+</div></script></section><section ><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
 [Understanding the status screen](https://github.com/AFLplusplus/AFLplusplus/blob/stable/docs/afl-fuzz_approach.md#understanding-the-status-screen)
@@ -296,6 +329,13 @@ src: https://github.com/google/AFL/blob/master/docs/technical_details.txt
 </div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
+Покрытие по базовым блокам, по ветвям условных переходов и по путям исполнения
+<img src="Bins/Images/Презентация БРПО 8 занятие. Фаззинг 3-1762760070814.jpeg" alt="" style="object-fit: scale-down">
+
+src: [BIS Journal № 3 2025 с. 90](https://ib-bank.ru/rpbo_pdf/6)
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
 Один из способов оценки эффективности фаззинг-тестирования - оценка покрытия кода исследуемого проекта (хотя она и не учитывает, например, поверхность атаки)
 - [Инструмент анализа покрытия, входящий в LLVM](https://clang.llvm.org/docs/SourceBasedCodeCoverage.html)
 - [Проект afl-cov](https://github.com/vanhauser-thc/afl-cov) (заброшен)
@@ -303,7 +343,27 @@ src: https://github.com/google/AFL/blob/master/docs/technical_details.txt
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
 AFLplusplus output directory structure
-</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+</div></script></section><section ><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Минимизация входного корпуса
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+[Making the input corpus unique](https://github.com/AFLplusplus/AFLplusplus/blob/stable/docs/fuzzing_in_depth.md#b-making-the-input-corpus-unique)
+
+```shell
+afl-cmin -i input/ -o input-unique -- ./bin/cppcheck @@
+```
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+[Minimizing all corpus files](https://github.com/AFLplusplus/AFLplusplus/blob/stable/docs/fuzzing_in_depth.md#c-minimizing-all-corpus-files)
+
+```shell
+AFL_MAP_SIZE=65536 afl-tmin -i input/1.cpp -o input/1.cpp.min -- ./bin/cppcheck @@
+```
+</div></script></section></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
 [CASR: Crash Analysis and Severity Report](https://github.com/ispras/casr)
