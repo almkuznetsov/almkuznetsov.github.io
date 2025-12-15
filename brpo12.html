@@ -90,13 +90,13 @@
 ### Безопасная разработка программного обеспечения
 Занятие 12. Лицензии, композиционный анализ и всё, о чем не успели поговорить
 
-09.12.2024
+08.12.2025
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
 Организационные моменты:
-- 49 и более баллов за ЛР - освобождение от практической части на экзамене.
-- Вопросы к экзамену и пример практики выданы старосте.
+- 47 и более баллов за ЛР - освобождение от практической части на экзамене.
+- Вопросы к экзамену и пример практики выданы в чате курса.
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
@@ -290,6 +290,82 @@ src: [xkcd 1978](https://xkcd.com/1987/)
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
+Базовая сущность в формате CycloneDX
+- компонент (библиотека, deb-пакет, docker-образ, файл и др.)
+- cyclonedx-gomod app -json -files - paths -licenses -packages -std -output bom.json -main ./computeapi/cmd/computeapi
+- Для Maven и Gradle есть плагины, которые генерируют SBOM во время mvn package и ./gradlew:service:app:cyclonedxBom
+- cyclonedx-py requirements --sv 1.6 > bom.json
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Что интересного можно сделать со SBOM?
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+<img src="Bins/Images/Презентация БРПО 12 занятие. Композиционный анализ-1765181778669.jpeg" alt="" style="object-fit: scale-down">
+
+src: [Пара слов про фиды с уязвимостями и SBOM / Сергей Краснов, Яндекс](https://www.youtube.com/watch?v=WkfR4jhb9TQ&list=WL&index=1)
+</div></script></section><section ><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Обогащение SBOM:
+- Информация про VCS (хеш коммита, ссылка, автор, ветка, тег, сабмодули)
+- Параметры сборки (ссылка, ID, номер, имя, кем запущена, проект, сборочный агент, время)
+- Deb-пакеты (имя, версия, описание, хеши файлов)
+- Docker-контейнеры (имя, тег, digest, image ID, время создания, хеши файлов)
+- Хеши файлов с исходным кодом
+
+src: [Алексей Вишняков на PHDays 2025](https://pt-phdays.storage.yandexcloud.net/Vishnyakov_Aleksej_Sovremennye_vyzovy_i_resheniya_v_bezopasnoj_razrabotke_oblachnyh_servisov_771f888bdd.pdf)
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+VCS info
+- Информацию про коммит сохраняем в pedigree, а остальное в properties:
+	- git show --quiet --pretty=format:…
+	- git config --get remote.origin.url
+	- git branch --show-current
+	- git rev-list --count HEAD
+	- git describe --tags --exact-match 
+	- git submodule status –recursive
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+<img src="Bins/Images/Презентация БРПО 12 занятие. Композиционный анализ-1765187761652.jpeg" alt="" style="object-fit: scale-down">
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Deb-пакеты
+- Получаем информацию про пакет: dpkg –I
+- Считаем хеши для содержимого пакета: dpkg –x
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+<img src="Bins/Images/Презентация БРПО 12 занятие. Композиционный анализ-1765187803773.jpeg" alt="" style="object-fit: scale-down">
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Docker-образы
+- Dive тяжеловесен, чтобы приносить его во все сборки
+- Проанализируем докер своими руками
+- Включим сохранение событий: docker events --format json
+- Запустим на каждом pushed-образе: docker inspect
+- Считаем хеши для файлов в слоях: docker save
+- При этом пропускаем pulled layers
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+<img src="Bins/Images/Презентация БРПО 12 занятие. Композиционный анализ-1765187848417.jpeg" alt="" style="object-fit: scale-down">
+</div></script></section></section><section ><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+<img src="Bins/Images/Презентация БРПО 12 занятие. Композиционный анализ-1765182121937.jpeg" alt="" style="object-fit: scale-down">
+</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+<img src="Bins/Images/Презентация БРПО 12 занятие. Композиционный анализ-1765187930158.jpeg" alt="" style="object-fit: scale-down">
+</div></script></section></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
 Цепочка проверок выпускаемых продуктов:
 1. Проверка на наличие вредоносного кода
 2. Регулярное сканирование исходных кодов
@@ -310,7 +386,9 @@ src: [xkcd 1978](https://xkcd.com/1987/)
 
 Контроль исправлений в большой пакетной базе:
 https://packages.altlinux.org/ru/errata/
-</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+</div></script></section><section  data-markdown><script type="text/template">
+
+</script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
 Формирование политик безопасности
@@ -365,6 +443,19 @@ https://packages.altlinux.org/ru/errata/
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
+<img src="Bins/Images/Презентация БРПО 12 занятие. Композиционный анализ-1765181736259.jpeg" alt="" style="object-fit: scale-down">
+
+src: [Пара слов про фиды с уязвимостями и SBOM / Сергей Краснов, Яндекс](https://www.youtube.com/watch?v=WkfR4jhb9TQ&list=WL&index=1)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Финальный пайплайн
+<img src="Bins/Images/Презентация БРПО 12 занятие. Композиционный анализ-1765188257785.jpeg" alt="" style="object-fit: scale-down">
+
+src: [Алексей Вишняков на PHDays 2025](https://pt-phdays.storage.yandexcloud.net/Vishnyakov_Aleksej_Sovremennye_vyzovy_i_resheniya_v_bezopasnoj_razrabotke_oblachnyh_servisov_771f888bdd.pdf)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
 Подведение итогов курса: что успели
 
 Наш план с первого занятия:
@@ -380,7 +471,7 @@ https://packages.altlinux.org/ru/errata/
 Подведение итогов курса: чего не успели (1/2)
 - Углубление в работу компилятора. Начать с: оптимизация, дебаг-символы
 - Уязвимости и работа с ними в веб-разработке. Начать с: [ЛР portswigger](https://portswigger.net/web-security)
-- Подпись кода/контейнеров/пакетов в контексте защиты информации
+- Подпись кода/контейнеров/пакетов в контексте защиты информации, начать с [cosign](https://github.com/sigstore/cosign)
 - Фаззинг других языков. [Go](https://go.dev/doc/security/fuzz/), [Java (Jazzer)](https://github.com/CodeIntelligenceTesting/jazzer), [Python (Atheris)](https://github.com/google/atheris), и др.
 - [Structure-aware фаззинг](https://github.com/google/fuzzing/blob/master/docs/structure-aware-fuzzing.md)
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
@@ -394,6 +485,8 @@ https://packages.altlinux.org/ru/errata/
 
 Источники:
 - Лекции Алексея Смирнова в рамках курса повышения квалификации ИСП РАН по архитектурному анализу
+- [Пара слов про фиды с уязвимостями и SBOM / Сергей Краснов, Яндекс](https://www.youtube.com/watch?v=WkfR4jhb9TQ&list=WL&index=1)
+- [Алексей Вишняков на PHDays 2025](https://pt-phdays.storage.yandexcloud.net/Vishnyakov_Aleksej_Sovremennye_vyzovy_i_resheniya_v_bezopasnoj_razrabotke_oblachnyh_servisov_771f888bdd.pdf)
 </div></script></section></div>
     </div>
 

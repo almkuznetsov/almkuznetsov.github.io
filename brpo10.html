@@ -90,38 +90,18 @@
 ### Безопасная разработка программного обеспечения
 Занятие 10. Фаззинг 5. 
 
-25.11.2024
+24.11.2025
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
 Организационные вопросы
-- Мягкий дедлайн по всем заданиям: 09.12.2024
-- Жесткий дедлайн по всем заданиям: 16.12.2024
+- Мягкий дедлайн по всем заданиям: 01.12.2025
+- Жесткий дедлайн по всем заданиям: 08.12.2025
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
 [Fuzzing in depth](https://github.com/AFLplusplus/AFLplusplus/blob/stable/docs/fuzzing_in_depth.md)
-</div></script></section><section ><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
-<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
-
-Минимизация входного корпуса
-</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
-<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
-
-[Making the input corpus unique](https://github.com/AFLplusplus/AFLplusplus/blob/stable/docs/fuzzing_in_depth.md#b-making-the-input-corpus-unique)
-
-```shell
-afl-cmin -i input/ -o input-unique -- ./bin/cppcheck @@
-```
-</div></script></section><section data-markdown><script type="text/template"><!-- .slide: class="drop" -->
-<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
-
-[Minimizing all corpus files](https://github.com/AFLplusplus/AFLplusplus/blob/stable/docs/fuzzing_in_depth.md#c-minimizing-all-corpus-files)
-
-```shell
-AFL_MAP_SIZE=65536 afl-tmin -i input/1.cpp -o input/1.cpp.min -- ./bin/cppcheck @@
-```
-</div></script></section></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
 Sanitizers
@@ -222,7 +202,7 @@ int main() {
 ```
 
 ```shell
-clang++ -O0 -g -fsanitize=address memory.cpp -o memory
+clang++ -O0 -g -fsanitize=address leak.cpp -o leak
 ```
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
@@ -230,6 +210,8 @@ clang++ -O0 -g -fsanitize=address memory.cpp -o memory
 [MemorySanitizer (MSAN)](https://github.com/google/sanitizers/wiki/MemorySanitizer)
 
 ```cpp
+#include <stdio.h>
+
 int main(int argc, char** argv) {
   int* a = new int[10];
   a[5] = 0;
@@ -240,7 +222,7 @@ int main(int argc, char** argv) {
 ```
 
 ```shell
-clang++ -fsanitize=memory -g memorysan.cpp -o memorysan
+clang++ -fsanitize=memory -g memory.cpp -o memory
 ```
 
 Try LSAN?
