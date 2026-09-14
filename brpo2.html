@@ -6,10 +6,11 @@
 
     <title></title>
     <link rel="stylesheet" href="dist/reveal.css" />
-    <link rel="stylesheet" href="dist/theme/white.css" id="theme" />
-    <link rel="stylesheet" href="plugin/highlight/zenburn.css" />
+    <link rel="stylesheet" href="css/robot-lung.css" id="theme" />
+    <link rel="stylesheet" href="plugin/highlight/monokai.css" />
 	<link rel="stylesheet" href="css/layout.css" />
 	<link rel="stylesheet" href="plugin/customcontrols/style.css">
+	<link rel="stylesheet" href="plugin/chalkboard/style.css">
 
 
 
@@ -87,10 +88,39 @@
       <div class="slides"><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
-### Безопасная разработка программного обеспечения
+<style>
+  .reveal::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    border: 30px solid #FF4081;
+    box-sizing: border-box;
+    pointer-events: none;
+    z-index: 105;
+  }
+
+  @media (max-width: 840px) {
+    .reveal::after {
+      border-width: 15px;
+    }
+  }
+  .reveal .slides section img {
+    max-width: 100%;
+    max-height: 350px;
+    width: auto;
+    height: auto;
+    margin: 5px 0;
+  }
+
+  .reveal .slides section p {
+    margin: 8px 0;
+  }
+  </style>
+
+### Разработка безопасного программного обеспечения
 Занятие 2. Сборка
 
-08.09.2025
+14.09.2026
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
@@ -136,7 +166,7 @@ int main() {
 }
 ```
 
-```
+```bash
 sudo apt-get install gcc-c++
 ```
 partly based on src: [Процесс компиляции программ на C++](https://habr.com/ru/articles/478124/)
@@ -170,19 +200,30 @@ g++ -c example.cpp -o example.o
 
 Что внутри объектного файла?
 ```
-nm -C gnu example.o
+nm -C example.o
 ```
 Подробнее: [Руководство новичка по эксплуатации компоновщика](https://habr.com/ru/articles/150327/)
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
 Link
-```
+```bash
 g++ example.o -o example
 ```
 or, simply
-```
+```bash
 g++ example.cpp -o example
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Что внутри бинарника?
+```shell
+nm example
+
+sudo apt-get install libstdc++13-devel-static
+
+g++ -static example.o -o example-static
 ```
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
@@ -206,12 +247,74 @@ clean:
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
+Сделаем makefile настраиваемым:
+
+
+Makefile.in
+```Makefile
+CXX = @CXX@
+
+build:
+		$(CXX) example.cpp -o example
+
+clean:
+		rm -f example
+```
+configure.ac
+```
+AC_INIT([example], [1.0])
+AC_PROG_CXX
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT
+```
+
+```shell
+sudo apt-get install autoconf
+autoconf
+./configure
+make
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Добавляем удаление файлов, создаваемых configure и пробуем с другим компилятором
+```
+distclean: clean
+		rm -f Makefile config.status config.log config.cache
+```
+
+```
+make distclean
+CXX=clang++ ./configure
+make
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Добавляем установку по фиксированным путям:
+configure.ac
+```
+AC_PREFIX_DEFAULT([/usr])
+```
+Makefile.in
+```
+PREFIX=@prefix@
+BINDIR=$(PREFIX)/bin
+
+install:
+        install -d "`$(DESTDIR)$`(BINDIR)"
+        install -m 755 example "`$(DESTDIR)$`(BINDIR)/example"
+
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
 ```
 apt-get install rpmdevtools rpm-build
 
 rpmdev-setuptree
 
-tar -cf example.tar example.cpp Makefile
+tar -cf example.tar example.cpp Makefile.in configure.ac
 
 cp example.tar ~/RPM/SOURCES/
 ```
@@ -229,19 +332,19 @@ License: MIT
 
 Source0: example.tar
 
-Requires: sqlsmith
-
 %description
-example
+example description
 
 %prep
-tar -xf /home/test/RPM/SOURCES/example.tar
+tar -xf /home/almkuznetsov/RPM/SOURCES/example.tar
 
 %build
+autoconf
+./configure
 make
 
 %install
-install -D -m755 example -t %buildroot%_bindir/
+make install DESTDIR=%{buildroot}
 
 %files
 /usr/bin/example
@@ -343,7 +446,7 @@ example-1.0-alt1
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
-Задание на практику
+Попробовать себя:
 
 Найти и собрать (не rpm-пакет, а просто бинарник):
 - pugixml
@@ -365,7 +468,10 @@ example-1.0-alt1
 	<script src="plugin/mermaid/mermaid.js"></script>
 	<script src="plugin/chart/chart.min.js"></script>
 	<script src="plugin/chart/plugin.js"></script>
+	<script src="plugin/menu/menu.js"></script>
 	<script src="plugin/customcontrols/plugin.js"></script>
+	<script src="plugin/chalkboard/plugin.js"></script>
+	<script src="plugin/elapsed-time-bar/elapsed-time-bar.js"></script>
 
     <script>
       function extend() {
@@ -421,6 +527,9 @@ example-1.0-alt1
 		  RevealMermaid,
 		  RevealChart,
 		  RevealCustomControls,
+		  RevealMenu,
+		  RevealChalkboard, 
+		  ElapsedTimeBar
         ],
 
 
@@ -443,14 +552,30 @@ example-1.0-alt1
 
 		customcontrols: {
 			controls: [
+				{id: 'toggle-overview',
+				title: 'Toggle overview (O)',
+				icon: '<i class="fa fa-th"></i>',
+				action: 'Reveal.toggleOverview();'
+				},
+				{ icon: '<i class="fa fa-pen-square"></i>',
+				title: 'Toggle chalkboard (B)',
+				action: 'RevealChalkboard.toggleChalkboard();'
+				},
+				{ icon: '<i class="fa fa-pen"></i>',
+				title: 'Toggle notes canvas (C)',
+				action: 'RevealChalkboard.toggleNotesCanvas();'
+				},
 			]
 		},
+		menu: {
+			loadIcons: false
+		}
       };
 
       // options from URL query string
       var queryOptions = Reveal().getQueryHash() || {};
 
-      var options = extend(defaultOptions, {"width":960,"height":700,"margin":0.04,"controls":true,"progress":true,"slideNumber":false,"transition":"slide","transitionSpeed":"default"}, queryOptions);
+      var options = extend(defaultOptions, {"width":960,"height":700,"margin":0.04,"controls":true,"progress":true,"slideNumber":true,"transition":"slide","transitionSpeed":"default"}, queryOptions);
     </script>
 
     <script>
