@@ -6,10 +6,11 @@
 
     <title></title>
     <link rel="stylesheet" href="dist/reveal.css" />
-    <link rel="stylesheet" href="dist/theme/white.css" id="theme" />
-    <link rel="stylesheet" href="plugin/highlight/zenburn.css" />
+    <link rel="stylesheet" href="css/robot-lung.css" id="theme" />
+    <link rel="stylesheet" href="plugin/highlight/monokai.css" />
 	<link rel="stylesheet" href="css/layout.css" />
 	<link rel="stylesheet" href="plugin/customcontrols/style.css">
+	<link rel="stylesheet" href="plugin/chalkboard/style.css">
 
 
 
@@ -87,12 +88,48 @@
       <div class="slides"><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
-### Безопасная разработка программного обеспечения
+<style>
+  .reveal::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    border: 30px solid #FF4081;
+    box-sizing: border-box;
+    pointer-events: none;
+    z-index: 105;
+  }
+
+  @media (max-width: 840px) {
+    .reveal::after {
+      border-width: 15px;
+    }
+  }
+  .reveal .slides section img {
+    max-width: 100%;
+    max-height: 350px;
+    width: auto;
+    height: auto;
+    margin: 5px 0;
+  }
+
+  .reveal .slides section p {
+    margin: 8px 0;
+  }
+  </style>
+
+### Разработка безопасного программного обеспечения
 Занятие 3. Статический анализ 1. 
 
 Основано на Введении в статический анализ Дмитрия Журихина (ИСП РАН)
 
-15.09.2025
+21.09.2026
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Обновления по процессу сдачи:
+- Не забывайте перезапрашивать ревью
+- Не сливайте ПРы
+- Списывание влияет на оценку обоих участников
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
@@ -100,7 +137,8 @@
 
 Аудит кода:
 - требует экспертов высокого уровня,
-- большие трудозатраты,
+- большие трудозатраты
+
 
 Динамический анализ,фаззинг:
 -  не требуют наличия исходного кода,
@@ -172,6 +210,12 @@ Recall демонстрирует способность алгоритма об
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
+<img src="Bins/Images/Pasted image 20250217140042.png" alt="" style="object-fit: scale-down">
+
+src: [ГК "Конфидинет" на ТБ Форуме 2025](https://www.tbforum.ru/hubfs/Digital/SS/SS_ADAPT/TBF_13-02-25_RBPO_Шаньгин_Воскресенский.pdf?hsLang=ru)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
 Поиск ошибок кодирования
 
 Цель: как можно меньше FP.
@@ -187,6 +231,12 @@ Recall демонстрирует способность алгоритма об
 <img src="Bins/Images/Pasted image 20240916135315.png" alt="" style="object-fit: scale-down">
 
 src: [Theory and Practice of Mechanized Software Analysis.](https://secwww.jhuapl.edu/techdigest/Content/techdigest/pdf/V32-N02/32-02-Pendergrass-Lee.pdf)
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+[CWE-476: NULL Pointer Dereference](https://cwe.mitre.org/data/definitions/476.html) (2024 Top № 21)
+
+<img src="Bins/Images/Pasted image 20250204115914.png" alt="" style="object-fit: scale-down">
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
@@ -255,6 +305,30 @@ int main() {
 sudo apt-get install clang19.1-analyzer llvm19.1
 scan-build clang++ hidden-deref.cpp
 ```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Посмотрим как выглядят отчеты разных анализаторов:
+```shell
+# cppcheck
+cppcheck . --output-format=xml 2> report.xml
+cppcheck-htmlreport --report-dir report --file report.xml
+
+# scan-build
+scan-view [....]
+```
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Static Analysis Results Interchange Format (SARIF)
+
+https://docs.oasis-open.org/sarif/sarif/v2.0/csprd02/sarif-v2.0-csprd02.pdfSARIF
+
+```shell
+cppcheck . --output-format=sarif 2> report.sarif
+
+scan-build -sarif [...]
+```
 </div></script></section></div>
     </div>
 
@@ -268,7 +342,10 @@ scan-build clang++ hidden-deref.cpp
 	<script src="plugin/mermaid/mermaid.js"></script>
 	<script src="plugin/chart/chart.min.js"></script>
 	<script src="plugin/chart/plugin.js"></script>
+	<script src="plugin/menu/menu.js"></script>
 	<script src="plugin/customcontrols/plugin.js"></script>
+	<script src="plugin/chalkboard/plugin.js"></script>
+	<script src="plugin/elapsed-time-bar/elapsed-time-bar.js"></script>
 
     <script>
       function extend() {
@@ -324,6 +401,9 @@ scan-build clang++ hidden-deref.cpp
 		  RevealMermaid,
 		  RevealChart,
 		  RevealCustomControls,
+		  RevealMenu,
+		  RevealChalkboard, 
+		  ElapsedTimeBar
         ],
 
 
@@ -346,14 +426,30 @@ scan-build clang++ hidden-deref.cpp
 
 		customcontrols: {
 			controls: [
+				{id: 'toggle-overview',
+				title: 'Toggle overview (O)',
+				icon: '<i class="fa fa-th"></i>',
+				action: 'Reveal.toggleOverview();'
+				},
+				{ icon: '<i class="fa fa-pen-square"></i>',
+				title: 'Toggle chalkboard (B)',
+				action: 'RevealChalkboard.toggleChalkboard();'
+				},
+				{ icon: '<i class="fa fa-pen"></i>',
+				title: 'Toggle notes canvas (C)',
+				action: 'RevealChalkboard.toggleNotesCanvas();'
+				},
 			]
 		},
+		menu: {
+			loadIcons: false
+		}
       };
 
       // options from URL query string
       var queryOptions = Reveal().getQueryHash() || {};
 
-      var options = extend(defaultOptions, {"width":960,"height":700,"margin":0.04,"controls":true,"progress":true,"slideNumber":false,"transition":"slide","transitionSpeed":"default"}, queryOptions);
+      var options = extend(defaultOptions, {"width":960,"height":700,"margin":0.04,"controls":true,"progress":true,"slideNumber":true,"transition":"slide","transitionSpeed":"default"}, queryOptions);
     </script>
 
     <script>
