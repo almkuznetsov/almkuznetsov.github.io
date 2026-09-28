@@ -6,10 +6,11 @@
 
     <title></title>
     <link rel="stylesheet" href="dist/reveal.css" />
-    <link rel="stylesheet" href="dist/theme/white.css" id="theme" />
-    <link rel="stylesheet" href="plugin/highlight/zenburn.css" />
+    <link rel="stylesheet" href="css/robot-lung.css" id="theme" />
+    <link rel="stylesheet" href="plugin/highlight/monokai.css" />
 	<link rel="stylesheet" href="css/layout.css" />
 	<link rel="stylesheet" href="plugin/customcontrols/style.css">
+	<link rel="stylesheet" href="plugin/chalkboard/style.css">
 
 
 
@@ -87,12 +88,52 @@
       <div class="slides"><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
+<style>
+  .reveal::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    border: 30px solid #FF4081;
+    box-sizing: border-box;
+    pointer-events: none;
+    z-index: 105;
+  }
+
+  @media (max-width: 840px) {
+    .reveal::after {
+      border-width: 15px;
+    }
+  }
+  .reveal .slides section img {
+    max-width: 100%;
+    max-height: 350px;
+    width: auto;
+    height: auto;
+    margin: 5px 0;
+  }
+
+  .reveal .slides section p {
+    margin: 8px 0;
+  }
+  </style>
+
+
 ### Безопасная разработка программного обеспечения
 Занятие 4. Статический анализ 2. 
 
 Основано на Введении в статический анализ Дмитрия Журихина (ИСП РАН)
 
-22.09.2025
+28.09.2026
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Как сравнить анализаторы между собой?
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Вопросы на сегодня:
+- Какие ошибки должен находить статический анализатор?
+- Какие методы анализа должен реализовывать статический анализатор?
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
@@ -121,24 +162,61 @@ src: [cwe.mitre.org](https://cwe.mitre.org/documents/cwe_usage/guidance.html)
 
 "View" ГОСТ Р 71207-2024 (проблема - нет прямого маппинга на CWE):
 
-Критические ошибки группируют по типам в зависимости от языка программирования. 
-Для компилируемых языков к типам критических ошибок относят следующие общие типы (1/3):
+Критические ошибки группируют по типам в зависимости от языка программирования.
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Для компилируемых языков к типам критических ошибок относят следующие общие типы (1/5):
 - а) ошибки непроверенного использования чувствительных данных (ввода пользователя, файлов, сети и пр.);
-	- CWE-707 (Pillar): Improper Neutralization?
+	- CWE-707 (Pillar): Improper Neutralization
+		- CWE-20 (Class): Improper Input Validation
+			- CWE-129 (Variant): Improper Validation of Array Index
+			- CWE-1284 (Base): Improper Validation of Specified Quantity in Input
 	- CWE-664 (Pillar): Improper Control of a Resource Through its Lifetime?
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
-(2/3)
+(2/5)
 - б) ошибки целочисленного переполнения и некорректного совместного использования знаковых и беззнаковых чисел;
-	- CWE-682 (Pillar): Incorrect Calculation?
-- в) ошибки переполнения буфера (записи или чтения за пределами выделенной для буфера памяти);
+	- CWE-682 (Pillar): Incorrect Calculation
+		- CWE-190 (Base): Integer Overflow or Wraparound
+		- CWE-191 (Base): Integer Underflow (Wrap or Wraparound)
+	- CWE-664 (Pillar): Improper Control of a Resource Through its Lifetime
+		- CWE-704 (Class): Incorrect Type Conversion or Cast
+			- CWE-681 (Base): Incorrect Conversion between Numeric Types
+				- CWE-194 (Variant): Unexpected Sign Extension
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
-(3/3)
-- г) ошибки некорректного использования системных процедур и интерфейсов, связанных с обеспечением информационной безопасности (шифрования, разграничения доступа и пр.);
+(3/5)
+- в) ошибки переполнения буфера (записи или чтения за пределами выделенной для буфера памяти);
+	- CWE-118 (Class): Incorrect Access of Indexable Resource ('Range Error')
+		- CWE-119 (Class): Improper Restriction of Operations within the Bounds of a Memory Buffer
+		- CWE-120 (Class): Buffer Copy without Checking Size of Input ('Classic Buffer Overflow')
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+(4/5)
+- г) ошибки некорректного использования системных процедур и интерфейсов, связанных с обеспечением ИБ (шифрования, разграничения доступа и пр.);
+- CWE-284 (Pillar): Improper Access Control
+	- CWE-285 (Class): Improper Authorization
+		- CWE-732 (Class): Incorrect Permission Assignment for Critical Resource
+- CWE-693 (Pillar): Protection Mechanism Failure
+	- CWE-327 (Class): Use of a Broken or Risky Cryptographic Algorithm
+- CWE-435 (Pillar): Improper Interaction Between Multiple Correctly-Behaving Entities
+	- CWE-1038 (Class): Insecure Automated Optimizations
+		- CWE-733 (Base): Compiler Opt Removal ...
+			- CWE-14 (Variant): Compiler Removal of Code to Clear Buffers
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+(5/5)
 - д) ошибки при работе с многопоточными примитивами (интерфейсами запуска потоков на выполнение, синхронизации и обмена данными между потоками и пр.).
+	- CWE-664 (Pillar): Improper Control of a Resource Through its Lifetime
+		- CWE-662 (Class): Improper Synchronization
+			- CWE-821(Base): Incorrect Synchronization
+			- CWE-667 (Class): Improper Locking
+				- CWE-609 (Base): Double-Checked Locking
 
 п. 6.3 ГОСТ Р 71207-2024
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
@@ -146,13 +224,16 @@ src: [cwe.mitre.org](https://cwe.mitre.org/documents/cwe_usage/guidance.html)
 
 Для заданного языка программирования типы критических ошибок, приведенные в 6.3 и 6.4, могут дополняться. Для языков C/C++ в дополнение к 6.3 следующие типы ошибок являются критическими (1/3):
 - а) ошибки разыменования нулевого указателя;
+	- CWE-476 (Base): NULL Pointer Dereference
 - б) ошибки деления на ноль;
+	- CWE-369 (Base): Divide By Zero
 - в) ошибки управления динамической памятью (выделения, освобождения, использования освобожденной памяти);
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
 (2/3)
 - г) ошибки использования форматной строки;
+	- CWE-134 (Base): Use of Externally-Controlled Format String
 - д) ошибки использования неинициализированных переменных;
 	- CWE-664 (Pillar): Improper Control of a Resource Through its Lifetime
 		- CWE-909 (Class): Missing Initialization of Resource
@@ -174,120 +255,6 @@ src: [cwe.mitre.org](https://cwe.mitre.org/documents/cwe_usage/guidance.html)
 
 Открытые тесты этапа "Домашнее задание" испытаний СА под патронажем ФСТЭК России:
 https://altlinux.space/rbpo-community/sa-tests-db
-</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
-<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
-
-```cpp
-void foo(char *p, int c) {
-	if (c) {
-		p = 0;
-	}
-	// ...
-	*p = '\0';
-}
-```
-</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
-<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
-
-```cpp
-int buf[10];
-
-int bar(int a, int b) {
-	if (a >= 9) { // True
-		// ...
-	}
-	if (b) // True
-		a++;
-	return buf[a]; // Ошибка
-}
-```
-</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
-<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
-
-Примеры «неконсистентностей» в коде
-```cpp
-if (op1 == null || op1 == null) // Ошибка
-	return null;
-```
-
-```cpp
-p = get_value();
-if (p == NULL)
-	return;
-// ...
-q = get_value();
-if (q == NULL)
-	return;
-// ...
-r = get_value();
-*r = 42; // Ошибка
-```
-</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
-<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
-
-Android 5.0.2, external/linux-tools-perf/perf-3.12.0/tools/perf/builtin-script.c:914
-```cpp
-void desc_delete(struct desc *s) {
-	free(s->name); 
-	free(s);
-	}
-	
-struct desc* findnew(const char *name) {
-	struct desc *s = desc_find(name);
-	if (s) 
-		return s;
-	desc_delete(s);
-	return NULL;
-	}
-```
-</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
-<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
-
-```cpp
-int foo(char *str, unsigned index) {
-	int pos = index;
-	pos++;
-	return str[pos];
-}
-```
-</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
-<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
-
-OS Command injection
-The mlfi_envrcpt function in spamass-milter.cpp in SpamAssassin Milter Plugin 0.3.1, when using the expand option, allows remote attackers to execute arbitrary system commands via shell metacharacters in the RCPT TO field of an email message.
-
-Example: `rcpt to: root+:"|touch /tmp/foo"`
-```cpp
-/* open a pipe to sendmail so we can do address expansion */ 
-char buf[1024];
-const char *fmt="%s -bv \"%s\" 2>&1";
-
-snprintf(buf, sizeof(buf)-1, fmt, SENDMAIL, envrcpt[0]);
-...
-p = popen(buf, "r");
-```
-</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
-<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
-
-Проблемы многопоточных программ
-Deadlock
-```cpp
-pthread_mutex_t *a, *b;
-
-void thread1() {
-	pthread_mutex_lock(a);
-	// ...
-	pthread_mutex_lock(b);
-	// ... 
-}
-
-void thread2() {
-	pthread_mutex_lock(b);
-	// ...
-	pthread_mutex_lock(a);
-	// ...
-}
-```
 </div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
 <div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
 
@@ -490,6 +457,30 @@ void foo() {
 }
 ```
 Требование: анализ недостижимого кода, учёт функций, не возвращающих управление.
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Как проверять, реализует ли анализатор эти методы?
+
+Открытые тесты основного этапа испытаний СА под патронажем ФСТЭК России:
+https://altlinux.space/rbpo-community/sa-tests-db-main-stage
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Результаты испытаний СА под патронажем ФСТЭК России для C/C++ (1/2):
+
+<img src="Bins/Images/Презентация БРПО 4 занятие-1790599956812.png" alt="" style="object-fit: scale-down">
+
+src: [ib-bank.ru](https://ib-bank.ru/rbpo/rbpo-ispytaniia-instrumenty-eksperty), стр. 50
+</div></script></section><section  data-markdown><script type="text/template"><!-- .slide: class="drop" -->
+<div class="" style="position: absolute; left: 0px; top: 0px; height: 700px; width: 960px; min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center" absolute="true">
+
+Результаты испытаний СА под патронажем ФСТЭК России для C/C++ (2/2):
+
+
+<img src="Bins/Images/Презентация БРПО 4 занятие-1790599927201.png" alt="" style="object-fit: scale-down">
+
+src: [ib-bank.ru](https://ib-bank.ru/rbpo/rbpo-ispytaniia-instrumenty-eksperty), стр. 50
 </div></script></section></div>
     </div>
 
@@ -503,7 +494,10 @@ void foo() {
 	<script src="plugin/mermaid/mermaid.js"></script>
 	<script src="plugin/chart/chart.min.js"></script>
 	<script src="plugin/chart/plugin.js"></script>
+	<script src="plugin/menu/menu.js"></script>
 	<script src="plugin/customcontrols/plugin.js"></script>
+	<script src="plugin/chalkboard/plugin.js"></script>
+	<script src="plugin/elapsed-time-bar/elapsed-time-bar.js"></script>
 
     <script>
       function extend() {
@@ -559,6 +553,9 @@ void foo() {
 		  RevealMermaid,
 		  RevealChart,
 		  RevealCustomControls,
+		  RevealMenu,
+		  RevealChalkboard, 
+		  ElapsedTimeBar
         ],
 
 
@@ -581,14 +578,30 @@ void foo() {
 
 		customcontrols: {
 			controls: [
+				{id: 'toggle-overview',
+				title: 'Toggle overview (O)',
+				icon: '<i class="fa fa-th"></i>',
+				action: 'Reveal.toggleOverview();'
+				},
+				{ icon: '<i class="fa fa-pen-square"></i>',
+				title: 'Toggle chalkboard (B)',
+				action: 'RevealChalkboard.toggleChalkboard();'
+				},
+				{ icon: '<i class="fa fa-pen"></i>',
+				title: 'Toggle notes canvas (C)',
+				action: 'RevealChalkboard.toggleNotesCanvas();'
+				},
 			]
 		},
+		menu: {
+			loadIcons: false
+		}
       };
 
       // options from URL query string
       var queryOptions = Reveal().getQueryHash() || {};
 
-      var options = extend(defaultOptions, {"width":960,"height":700,"margin":0.04,"controls":true,"progress":true,"slideNumber":false,"transition":"slide","transitionSpeed":"default"}, queryOptions);
+      var options = extend(defaultOptions, {"width":960,"height":700,"margin":0.04,"controls":true,"progress":true,"slideNumber":true,"transition":"slide","transitionSpeed":"default"}, queryOptions);
     </script>
 
     <script>
